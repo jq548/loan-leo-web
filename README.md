@@ -1,29 +1,49 @@
-# loan-leo-web
+# Leo Wallet Demo
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a NextJS-based demo site for the [Aleo Wallet Adapter](https://github.com/demox-labs/aleo-wallet-adapter) to be used on the [Aleo blockchain](https://aleo.org). <br>
 
-## Recommended IDE Setup
+The goal of this demo is to show how to build a website that integrates with Aleo Wallets like the [Leo Wallet](https://leo.app)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Customize configuration
+<hr />
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Demo 
 
-## Project Setup
+You can find [this site live here](https://demo.leo.app)
 
-```sh
-npm install
+## 🚀 Quick Start
+
+Ensure you have:
+
+- [Node.js](https://nodejs.org) 12 or later installed
+- [Yarn](https://yarnpkg.com) v1 or v2 installed
+
+Then run the following:
+
+### 1) Clone the repository
+
+```bash
+git clone https://github.com/demox-labs/leo-wallet-demo && cd leo-wallet-demo
 ```
 
-### Compile and Hot-Reload for Development
+### 2) Install dependencies
 
-```sh
-npm run dev
+```bash
+yarn
 ```
 
-### Compile and Minify for Production
+### 3) Development
 
-```sh
-npm run build
+Run a local server on localhost:3000.
+
+```bash
+yarn dev
+```
+
+
+
+### 4) Build
+
+```bash
+yarn build
 ```
