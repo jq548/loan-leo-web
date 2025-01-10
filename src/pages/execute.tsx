@@ -55,7 +55,7 @@ const Execute: NextPageWithLayout = () => {
 
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
-      process.env.CHAIN as string,
+      WalletAdapterNetwork.TestnetBeta,
       programId,
       functionName,
       parsedInputs,

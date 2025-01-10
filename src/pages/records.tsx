@@ -26,6 +26,7 @@ const RecordsPage: NextPageWithLayout<RecordsPageProps> = ({
     if (!publicKey) throw new WalletNotConnectedError();
 
     let records = (await requestRecords!(program)) || '';
+    console.log("records");
     if (event.target?.elements[0]?.value) {
       event.target.elements[0].value = '';
     }

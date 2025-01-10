@@ -12,9 +12,10 @@ import {
   WalletAdapterNetwork,
   WalletNotConnectedError,
 } from '@demox-labs/aleo-wallet-adapter-base';
+import React, { FC, useCallback } from "react";
 
 const TransactionPage: NextPageWithLayout = () => {
-  const { wallet, publicKey } = useWallet();
+  const { wallet, publicKey, requestRecords } = useWallet();
 
   let [toAddress, setToAddress] = useState('');
   let [amount, setAmount] = useState<number | undefined>();
@@ -42,15 +43,23 @@ const TransactionPage: NextPageWithLayout = () => {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     if (!publicKey) throw new WalletNotConnectedError();
+    // console.log(publicKey);
+    // // 85504bbc-7fb3-4b8d-bad8-34f1d1aa8465
+    // const data = await (
+    //   wallet?.adapter as LeoWalletAdapter
+    // ).transactionStatus("85504bbc-7fb3-4b8d-bad8-34f1d1aa8465")
+    // console.log(data);
+    // return;
 
-    const inputs = [JSON.parse(record), toAddress, `${amount}u64`];
+    const inputs = ["aleo1hac8kndgfp7eh545yeu6k2ue32yn3dt7qe5xl54d6lpe7xecyq9qkxc3tx", `1000000u64`];
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
-      process.env.CHAIN as string,
+      WalletAdapterNetwork.TestnetBeta,
       'credits.aleo',
-      'transfer_private',
+      'transfer_public',
       inputs,
-      fee!
+      100000,
+      false,
     );
 
     const txId =
@@ -60,6 +69,7 @@ const TransactionPage: NextPageWithLayout = () => {
     if (event.target?.elements[0]?.value) {
       event.target.elements[0].value = '';
     }
+    console.log(txId);
     setTransactionId(txId);
   };
 
@@ -162,7 +172,7 @@ const TransactionPage: NextPageWithLayout = () => {
           </label>
           <div className="flex items-center justify-center">
             <Button
-              disabled={!publicKey || record.length < 1}
+              disabled={!publicKey}
               type="submit"
               color="white"
               className="shadow-card dark:bg-gray-700 md:h-10 md:px-5 xl:h-12 xl:px-7"
