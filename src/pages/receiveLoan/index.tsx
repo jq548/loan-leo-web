@@ -11,6 +11,7 @@ import { Dialog, Transition } from '@/components/ui/dialog';
 
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
+  const [index, setIndex] = useState(0);
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -22,28 +23,36 @@ const ReceiveLoanStepOne = (props: any) => {
       <div className="mb-3">
         <div className="flex gap-2">
           <button
-            className={`flex-1 rounded-xl border border-white bg-white p-3 text-gray-700`}
-            onClick={() => alert('Selected 1 week')}
+            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
+              index === 0 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
+            }`}
+            onClick={() => setIndex(0)}
           >
             1 week
           </button>
           <button
-            className={`flex-1 rounded-xl bg-green-500 p-3 text-white`}
-            onClick={() => alert('Selected 2 weeks')}
+            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
+              index === 1 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
+            }`}
+            onClick={() => setIndex(1)}
           >
-            2 weeks
+            2 week
           </button>
           <button
-            className={`flex-1 rounded-xl border border-white bg-white p-3 text-gray-700`}
-            onClick={() => alert('Selected 3 weeks')}
+            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
+              index === 2 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
+            }`}
+            onClick={() => setIndex(2)}
           >
-            3 weeks
+            3 week
           </button>
           <button
-            className={`flex-1 rounded-xl border border-white bg-white p-3 text-gray-700`}
-            onClick={() => alert('Selected 4 weeks')}
+            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
+              index === 3 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
+            }`}
+            onClick={() => setIndex(3)}
           >
-            4 weeks
+            4 week
           </button>
         </div>
       </div>
