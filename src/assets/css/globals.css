@@ -48,6 +48,10 @@ input.spin-button-hidden::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 /* html,
 body {

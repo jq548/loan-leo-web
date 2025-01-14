@@ -16,40 +16,70 @@ import { Sun } from '@/components/icons/sun';
 
 const menuItems = [
   {
-    name: 'Getting Started',
-    icon: <HomeIcon />,
-    href: routes.gettingStarted,
+    name: 'Homepage',
+    href: routes.homePage,
   },
   {
-    name: 'Sign',
-    icon: <ExchangeIcon />,
-    href: routes.sign,
+    name: 'Pledge lending',
+    href: routes.loan,
   },
   {
-    name: 'Decrypt',
-    icon: <Unlocked />,
-    href: routes.decrypt,
+    name: 'My loan',
+    href: routes.myLoan,
   },
   {
-    name: 'Records',
-    icon: <FarmIcon />,
-    href: routes.records,
+    name: 'Language',
+    href: routes.myLoan,
   },
   {
-    name: 'Transfer',
-    icon: <ChevronForward />,
-    href: routes.transfer,
+    name: 'Help',
+    href: routes.myLoan,
   },
-  {
-    name: 'Execute',
-    icon: <OvenIcon />,
-    href: routes.execute,
-  },
-  {
-    name: 'Deploy',
-    icon: <Sun />,
-    href: routes.deploy,
-  },
+  // {
+  //   name: 'Sign',
+  //   icon: <ExchangeIcon />,
+  //   href: routes.sign,
+  // },
+  // {
+  //   name: 'Decrypt',
+  //   icon: <Unlocked />,
+  //   href: routes.decrypt,
+  // },
+  // {
+  //   name: 'Records',
+  //   icon: <FarmIcon />,
+  //   href: routes.records,
+  // },
+  // {
+  //   name: 'Transfer',
+  //   icon: <ChevronForward />,
+  //   href: routes.transfer,
+  // },
+  // {
+  //   name: 'Execute',
+  //   icon: <OvenIcon />,
+  //   href: routes.execute,
+  // },
+  // {
+  //   name: 'Deploy',
+  //   icon: <Sun />,
+  //   href: routes.deploy,
+  // },
+  // {
+  //   name: 'Loan',
+  //   icon: <Sun />,
+  //   href: routes.loan,
+  // },
+  // {
+  //   name: 'ReceiveLoan',
+  //   icon: <Sun />,
+  //   href: routes.receiveLoan,
+  // },
+  // {
+  //   name: 'MyLoan',
+  //   icon: <Sun />,
+  //   href: routes.myLoan,
+  // },
 ];
 
 type SidebarProps = {
@@ -82,15 +112,10 @@ export default function Sidebar({ className }: SidebarProps) {
       </div>
 
       <Scrollbar style={{ height: 'calc(100% - 96px)' }}>
-        <div className="px-6 pb-5 2xl:px-8">
+        <div className="px-3 pb-5 2xl:px-8">
           <div className="mt-2">
             {menuItems.map((item, index) => (
-              <MenuItem
-                key={index}
-                name={item.name}
-                href={item.href}
-                icon={item.icon}
-              />
+              <MenuItem key={index} name={item.name} href={item.href} icon="" />
             ))}
           </div>
         </div>

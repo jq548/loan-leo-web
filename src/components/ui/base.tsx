@@ -40,6 +40,18 @@ const baseMenu = [
     name: 'Deploy',
     value: routes.deploy,
   },
+  {
+    name: 'Loan',
+    value: routes.loan,
+  },
+  {
+    name: 'ReceiveLoan',
+    value: routes.receiveLoan,
+  },
+  {
+    name: 'MyLoan',
+    value: routes.myLoan,
+  },
 ];
 
 function ActiveNavLink({ href, title, isActive, className }: any) {

@@ -4,7 +4,8 @@ import { useIsMounted } from '@/lib/hooks/use-is-mounted';
 import { useIsDarkMode } from '@/lib/hooks/use-is-dark-mode';
 import lightLogo from '@/assets/images/logo.svg';
 import darkLogo from '@/assets/images/logo-white.svg';
-import logo from '@/assets/images/icon-128.png';
+// import logo from '@/assets/images/icon-128.png';
+import logo from '@/assets/images/global/logo.png';
 
 const Logo: React.FC<React.SVGAttributes<{}>> = (props) => {
   const isMounted = useIsMounted();
