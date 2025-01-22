@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import BannerIcon from '@/assets/images/loan/banner.png';
 import WarningIcon from '@/assets/images/loan/warning-icon-2.png';
 import Image from '@/components/ui/image';
+import { getOverview } from '@/apis';
 import { circleBarConfig, lineConfig } from './chartsConfig';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -16,6 +17,7 @@ import {
   GridComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { useRouter } from 'next/router';
 
 echarts.use([
   TitleComponent,
@@ -27,21 +29,67 @@ echarts.use([
   LineChart,
   GridComponent,
 ]);
+interface HomePageOverviewType {
+  total_provide_liquid: string;
+  total_loaned: string;
+  liquid_used_rate: string;
+  provide_liquid_reward_rate: string;
+  total_deposit_aleo: string;
+  banners: string[];
+  history_rate: {
+    rate: string;
+    at: number;
+    days: number;
+  }[];
+}
 const HomePage: NextPageWithLayout = () => {
+  let circleBarChartInstance: any;
+  let lineChartInstance: any;
+  const router = useRouter();
+  const [overviewState, setOverviewState] = useState<HomePageOverviewType>({
+    total_provide_liquid: '',
+    total_loaned: '',
+    liquid_used_rate: '',
+    provide_liquid_reward_rate: '',
+    total_deposit_aleo: '',
+    banners: [],
+    history_rate: [],
+  });
   const circleBarChartRef = useRef(null);
   const lineChartRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState('1m');
 
+  const handleToLoan = () => {
+    router.push('/loan');
+  };
+
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
+  };
+
+  const getOverviewInfo = async () => {
+    const res: any = await getOverview();
+    setOverviewState(res);
+    circleBarChartInstance &&
+      circleBarChartInstance.setOption(
+        circleBarConfig(Number(res.liquid_used_rate))
+      );
+    const xData = res.history_rate.map((item: any) =>
+      new Date(item.at).toDateString()
+    );
+    const seriesData = res.history_rate.map(
+      (item: any) => Number(item.rate) * 100
+    );
+    const params = { xData, seriesData };
+    lineChartInstance.setOption(lineConfig(params));
   };
 
   useEffect(() => {
     if (!circleBarChartRef.current || !lineChartRef.current) return;
 
-    const circleBarChartInstance = echarts.init(circleBarChartRef.current);
-    const lineChartInstance = echarts.init(lineChartRef.current);
+    circleBarChartInstance = echarts.init(circleBarChartRef.current);
+    lineChartInstance = echarts.init(lineChartRef.current);
 
     circleBarChartInstance.setOption(circleBarConfig());
     lineChartInstance.setOption(lineConfig());
@@ -50,6 +98,8 @@ const HomePage: NextPageWithLayout = () => {
       circleBarChartInstance.resize();
       lineChartInstance.resize();
     });
+
+    getOverviewInfo();
 
     return () => {
       window.removeEventListener('resize', () => {
@@ -87,13 +137,14 @@ const HomePage: NextPageWithLayout = () => {
                   Total supplied
                 </p>
                 <p className="mb-2 text-base font-bold tracking-tighter text-[#18191A]">
-                  $500.365 of $2255200
+                  ${overviewState.total_loaned} of $
+                  {overviewState.total_provide_liquid}
                 </p>
                 <p className="mb-2 text-sm tracking-tighter text-[#737980]">
                   Total Mortqaqe quantity
                 </p>
                 <p className="text-base font-bold tracking-tighter text-[#18191A]">
-                  10025.25 ALEO
+                  {overviewState.total_deposit_aleo} ALEO
                 </p>
               </div>
             </div>
@@ -101,7 +152,7 @@ const HomePage: NextPageWithLayout = () => {
             <div className="flex justify-around rounded-2xl border border-[#E8EAEB] bg-[#F3F5F6] px-2 py-4">
               <div className="flex flex-col items-center justify-center">
                 <div className="text-3xl font-bold tracking-tighter text-[#FA9825]">
-                  5.14
+                  {Number(overviewState.provide_liquid_reward_rate) * 100}
                 </div>
                 <div className="mt-2 flex items-center">
                   <span className="mr-2 tracking-tighter text-[#8A9199]">
@@ -114,7 +165,9 @@ const HomePage: NextPageWithLayout = () => {
               <div className="flex flex-col items-center justify-center">
                 <div className="flex items-start font-bold tracking-tighter text-[#18191A]">
                   <span className="text-xl">$</span>
-                  <span className="text-3xl">2255200</span>
+                  <span className="text-3xl">
+                    {overviewState.total_provide_liquid}
+                  </span>
                 </div>
                 <div className="mt-2 flex items-center">
                   <span className="mr-2 tracking-tighter text-[#8A9199]">
@@ -167,7 +220,10 @@ const HomePage: NextPageWithLayout = () => {
               <div className="mt-4 h-[150px] w-full" ref={lineChartRef}></div>
             </div>
 
-            <button className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
+            <button
+              className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
+              onClick={handleToLoan}
+            >
               Apply for a loan
             </button>
           </div>
