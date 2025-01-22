@@ -3,16 +3,59 @@ import type { NextPageWithLayout } from '@/types';
 import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import LoanIcon from '@/assets/images/loan/loan-icon-1.png';
 import Image from '@/components/ui/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { getLpQuantity, loanParamsConfig } from '@/apis';
+
+interface ILpQuantity {
+  borrowing_amount: string;
+  collateral_amount: string;
+  collateral_rate: string;
+  installment: {
+    installments: number;
+    day_per_installment: number;
+    interest_rate: string;
+    interest_installment: string;
+  }[];
+}
 
 const Loan: NextPageWithLayout = () => {
   const router = useRouter();
   const [pledgeAmount, setPledgeAmount] = useState('0.00');
-  const [obtainFunds, setObtainFunds] = useState(0);
+  const [obtainFunds, setObtainFunds] = useState<ILpQuantity>({
+    borrowing_amount: '0',
+    collateral_amount: '0',
+    collateral_rate: '0',
+    installment: [],
+  });
+  const [pageConfig, setPageConfig] = useState<any>({});
+
+  const getLpQuantityApi = async (value: string) => {
+    try {
+      const res: ILpQuantity = await getLpQuantity({ amount: Number(value) });
+      if (res) {
+        setPledgeAmount(value);
+        setObtainFunds(res);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getLoanParamsConfig = async () => {
+    const res = await loanParamsConfig();
+    if (res) {
+      setPageConfig(res);
+    }
+  };
+
+  useEffect(() => {
+    getLoanParamsConfig();
+  }, []);
 
   const handleToReceive = () => {
     router.push('/receiveLoan');
+    localStorage.setItem('obtainFunds', JSON.stringify(obtainFunds));
   };
   return (
     <div className="h-full rounded-3xl bg-white">
@@ -20,11 +63,16 @@ const Loan: NextPageWithLayout = () => {
         <div className="bg-[#f4f4f4]">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-4xl font-bold text-black">Borrow</h1>
-            <p className="text-xl text-black">
-              <span className="text-gray-400" style={{ letterSpacing: '-2px' }}>
+            <p className="text-xl tracking-tighter  text-black">
+              <span
+                className="text-sm text-gray-400"
+                style={{ letterSpacing: '-2px' }}
+              >
                 ALEO Price
-              </span>{' '}
-              $1.59
+              </span>
+              <span className="ml-1 text-lg font-bold">
+                ${pageConfig.price || 0}
+              </span>
             </p>
           </div>
 
@@ -66,6 +114,7 @@ const Loan: NextPageWithLayout = () => {
                 type="number"
                 value={pledgeAmount}
                 onChange={(e) => setPledgeAmount(e.target.value)}
+                onBlur={(e) => getLpQuantityApi(e.target.value)}
                 className="w-full border-0 bg-transparent text-3xl font-bold text-[#18191A]"
               />
             </div>
@@ -79,7 +128,9 @@ const Loan: NextPageWithLayout = () => {
             </label>
             <input
               type="number"
-              value={obtainFunds}
+              value={obtainFunds.borrowing_amount}
+              onChange={() => {}}
+              disabled
               className="w-full rounded-lg border border-gray-300 px-4 py-3 text-xl text-[#B8C2CC]"
             />
             <label className="absolute right-4 top-4 block bg-white text-xs text-black">
@@ -88,7 +139,22 @@ const Loan: NextPageWithLayout = () => {
           </div>
 
           <p className="mb-10 text-xs text-[#8A9199]">
-            Weekly interest rate 0.4%–0.8%
+            Weekly interest rate{' '}
+            {(
+              (obtainFunds.installment && obtainFunds.installment.length
+                ? Number(obtainFunds.installment[0]?.interest_rate)
+                : 0) * 100
+            ).toFixed(2)}
+            %–
+            {(
+              (obtainFunds.installment && obtainFunds.installment.length
+                ? Number(
+                    obtainFunds.installment[obtainFunds.installment.length - 1]
+                      ?.interest_rate
+                  )
+                : 0) * 100
+            ).toFixed(2)}
+            %
           </p>
 
           <button

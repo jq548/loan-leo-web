@@ -5,13 +5,18 @@ import QuestionIcon from '@/assets/images/global/question-icon.png';
 import DocIcon from '@/assets/images/loan/doc-icon.png';
 import WarnIcon from '@/assets/images/loan/waring-icon.png';
 import Image from '@/components/ui/image';
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
 
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
-  const [index, setIndex] = useState(0);
+  const { onStepChange, obtainFunds } = props;
+  const [info, setInfo] = useState({
+    address: '',
+    email: '',
+    installment: 1,
+  });
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -22,38 +27,25 @@ const ReceiveLoanStepOne = (props: any) => {
 
       <div className="mb-3">
         <div className="flex gap-2">
-          <button
-            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
-              index === 0 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
-            }`}
-            onClick={() => setIndex(0)}
-          >
-            1 week
-          </button>
-          <button
-            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
-              index === 1 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
-            }`}
-            onClick={() => setIndex(1)}
-          >
-            2 week
-          </button>
-          <button
-            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
-              index === 2 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
-            }`}
-            onClick={() => setIndex(2)}
-          >
-            3 week
-          </button>
-          <button
-            className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
-              index === 3 ? 'bg-[#1EBE70] text-white' : 'text-[#18191A]'
-            }`}
-            onClick={() => setIndex(3)}
-          >
-            4 week
-          </button>
+          {obtainFunds &&
+            obtainFunds.installment &&
+            obtainFunds.installment.map((item: any, i: number) => {
+              return (
+                <button
+                  className={`flex-1 rounded-xl border border-white bg-white px-3 py-4 ${
+                    info.installment === i + 1
+                      ? 'bg-[#1EBE70] text-white'
+                      : 'text-[#18191A]'
+                  }`}
+                  key={i}
+                  onClick={() =>
+                    setInfo({ ...info, installment: item.installments })
+                  }
+                >
+                  {item.installments} week
+                </button>
+              );
+            })}
         </div>
       </div>
 
@@ -62,7 +54,14 @@ const ReceiveLoanStepOne = (props: any) => {
           <span className="mr-2">estimate weekly interest rate</span>
           <Image width={14} height={14} src={QuestionIcon}></Image>
         </div>
-        <span className="text-[#FE4C30]">0.5%</span>
+        <span className="text-[#FE4C30]">
+          {obtainFunds &&
+            obtainFunds.installment &&
+            (
+              obtainFunds.installment[info.installment - 1].interest_rate * 100
+            ).toFixed(2)}
+          %
+        </span>
       </div>
 
       <div className="rounded-lg border border-[#E8EAEB] p-4 shadow-[0px_20px_50px_0px_rgba(7,17,53,0.05)]">
@@ -78,8 +77,15 @@ const ReceiveLoanStepOne = (props: any) => {
           <input
             type="text"
             id="address"
+            value={info.address}
+            onChange={(e) => {
+              setInfo({
+                ...info,
+                address: e.target.value,
+              });
+            }}
             placeholder="Required item"
-            className="w-full rounded-xl border border-white px-4 py-2"
+            className="w-full rounded-xl border border-white px-4 py-2 text-[#18191A]"
           />
           <p className="mt-2 text-xs tracking-tighter text-red-500">
             Please remember to check your receiving address carefully. If it is
@@ -100,14 +106,22 @@ const ReceiveLoanStepOne = (props: any) => {
         <div className="mb-4">
           <input
             type="text"
+            id="email"
+            value={info.email}
+            onChange={(e) => {
+              setInfo({
+                ...info,
+                email: e.target.value,
+              });
+            }}
             placeholder="Optional item"
-            className="w-full rounded-xl border border-white px-4 py-2"
+            className="w-full rounded-xl border border-white px-4 py-2 text-[#18191A]"
           />
         </div>
 
         <button
           className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-          onClick={() => props.onStepChange(2)}
+          onClick={() => onStepChange({ step: 2, info })}
         >
           Next step
         </button>
@@ -117,14 +131,14 @@ const ReceiveLoanStepOne = (props: any) => {
 };
 // stepTwo
 const ReceiveLoanStepTwo = (props: any) => {
-  const fieldList = [
+  const [fieldList, setFieldList] = useState<any>([
     {
       label: 'Loan type',
       tooltip: {
         show: true,
         content: 'The type of loan you want to receive',
       },
-      value: 'ALEO / pos借贷',
+      value: 'ALEO',
     },
     {
       label: 'Collateral',
@@ -214,7 +228,28 @@ const ReceiveLoanStepTwo = (props: any) => {
       },
       value: '31**365@gmail.com',
     },
-  ];
+  ]);
+  const { onStepChange, obtainFunds, stepOneInfo } = props;
+
+  useEffect(() => {
+    const deepFieldList = JSON.parse(JSON.stringify(fieldList));
+    if (obtainFunds && obtainFunds.installment && stepOneInfo) {
+      deepFieldList[2].value = obtainFunds.collateral_amount + 'USDT';
+      deepFieldList[3].value = obtainFunds.collateral_rate + 'x';
+      deepFieldList[4].value = obtainFunds.borrowing_amount + 'USDT';
+      deepFieldList[6].value = stepOneInfo.installment + 'week';
+      deepFieldList[7].value =
+        (
+          obtainFunds.installment[stepOneInfo.installment].interest_rate * 100
+        ).toFixed(2) + '%';
+      deepFieldList[9].value =
+        obtainFunds.installment[stepOneInfo.installment].interest_installment +
+        'USDT';
+      deepFieldList[10].value = stepOneInfo.address;
+      deepFieldList[11].value = stepOneInfo.email;
+      setFieldList(deepFieldList);
+    }
+  }, []);
   return (
     <>
       <div className="mb-4 flex items-center text-xl font-bold tracking-tighter text-black">
@@ -224,16 +259,19 @@ const ReceiveLoanStepTwo = (props: any) => {
 
       <div className="rounded-2xl border border-[#E8EAEB] p-4 shadow-[0px_20px_50px_0px_rgba(7,17,53,0.05)]">
         <div>
-          {fieldList.map((item) => {
+          {fieldList.map((item: any) => {
             return (
-              <div className="mb-4 flex items-center justify-between py-2">
+              <div
+                className="mb-4 flex items-center justify-between py-2"
+                key={item.label}
+              >
                 <div className="mr-6 shrink-0 tracking-tighter text-[#8A9199]">
                   <span className="mr-2">{item.label}</span>
                   {item.tooltip.show && (
                     <Image width={16} height={16} src={QuestionIcon} />
                   )}
                 </div>
-                <div className="flex justify-end text-xs tracking-tighter text-[#18191A]">
+                <div className="text-overflow-ellipsis overflow-hidden truncate text-xs tracking-tighter text-[#18191A]">
                   {item.value}
                 </div>
               </div>
@@ -256,7 +294,7 @@ const ReceiveLoanStepTwo = (props: any) => {
 
         <button
           className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-          onClick={() => props.onStepChange(3)}
+          onClick={() => onStepChange({ step: 3 })}
         >
           Confirm the loan contract.
         </button>
@@ -266,6 +304,7 @@ const ReceiveLoanStepTwo = (props: any) => {
 };
 // stepThree
 const ReceiveLoanStepThree = (props: any) => {
+  const { obtainFunds, stepOneInfo } = props;
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -276,7 +315,7 @@ const ReceiveLoanStepThree = (props: any) => {
     setIsOpen(true);
   }
 
-  const borrowAmountFieldList = [
+  const [borrowAmountFieldList, setBorrowAmountFieldList] = useState([
     {
       label: 'Loan address',
       value: '0x84**55dd',
@@ -289,18 +328,32 @@ const ReceiveLoanStepThree = (props: any) => {
       label: 'collateral',
       value: '1125aelo',
     },
-  ];
+  ]);
 
-  const receiveLoansFieldList = [
+  const [receiveLoansFieldList, setReceoveLoansFieldList] = useState([
     {
       label: 'Network',
       value: 'BSC',
     },
     {
       label: 'Address',
-      value: '1125aelo',
+      value: 'testAddress',
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const deepBorrowAmountFieldList = JSON.parse(
+      JSON.stringify(borrowAmountFieldList)
+    );
+    const deepReceiveLoansFieldList = JSON.parse(
+      JSON.stringify(receiveLoansFieldList)
+    );
+    if (obtainFunds && obtainFunds.installment && stepOneInfo) {
+      deepBorrowAmountFieldList[0].value = stepOneInfo.address;
+      deepReceiveLoansFieldList[1].value = stepOneInfo.address;
+      setBorrowAmountFieldList(deepReceiveLoansFieldList);
+    }
+  }, []);
 
   const handleSubmit = () => {
     openModal();
@@ -324,9 +377,14 @@ const ReceiveLoanStepThree = (props: any) => {
         <div className="mb-12">
           {borrowAmountFieldList.map((item) => {
             return (
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-sm text-[#5C6166]">{item.label}</div>
-                <div className="text-sm text-[#18191A]">{item.value}</div>
+              <div
+                className="mt-2 flex items-center justify-between"
+                key={item.label}
+              >
+                <div className="mr-8 text-sm text-[#5C6166]">{item.label}</div>
+                <div className="text-overflow-ellipsis overflow-hidden truncate text-sm text-[#18191A]">
+                  {item.value}
+                </div>
               </div>
             );
           })}
@@ -348,9 +406,14 @@ const ReceiveLoanStepThree = (props: any) => {
         <div className="mb-4">
           {receiveLoansFieldList.map((item) => {
             return (
-              <div className="mt-2 flex items-center justify-between">
-                <div className="text-sm text-[#5C6166]">{item.label}</div>
-                <div className="text-sm text-[#18191A]">{item.value}</div>
+              <div
+                className="mt-2 flex items-center justify-between"
+                key={item.label}
+              >
+                <div className="mr-8 text-sm text-[#5C6166]">{item.label}</div>
+                <div className="text-overflow-ellipsis overflow-hidden truncate text-sm text-[#18191A]">
+                  {item.value}
+                </div>
               </div>
             );
           })}
@@ -452,14 +515,31 @@ const ReceiveLoanStepThree = (props: any) => {
 const ReceiveLoanPage: NextPageWithLayout = () => {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const handleNextStep = (step: number) => {
+  let [obtainFunds, setObtainFunds] = useState<any>({});
+  let [stepOneInfo, setStepOneInfo] = useState<any>({});
+  const handleNextStep = (
+    value: { step: number; info: any },
+    oldStep: number
+  ) => {
     // You can add logic here to validate inputs before navigating
-    // router.push('/confirmation');
-    setStep(step);
+    setStep(value.step);
+    if (oldStep === 1) {
+      // one to two
+      setStepOneInfo(value.info);
+    } else if (oldStep === 2) {
+      // two to three
+    } else if (oldStep === 3) {
+      // three to two
+    }
   };
+  useEffect(() => {
+    const result = localStorage.getItem('obtainFunds');
+    result && setObtainFunds(JSON.parse(result));
+  }, []);
 
   const handlReturn = () => {
     // return back to previous page
+    localStorage.removeItem('obtainFunds');
     router.back();
   };
 
@@ -475,11 +555,21 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
         </div>
 
         {step === 1 ? (
-          <ReceiveLoanStepOne onStepChange={handleNextStep} />
+          <ReceiveLoanStepOne
+            onStepChange={(newVal: any) => handleNextStep(newVal, 1)}
+            obtainFunds={obtainFunds}
+          />
         ) : step === 2 ? (
-          <ReceiveLoanStepTwo onStepChange={handleNextStep} />
+          <ReceiveLoanStepTwo
+            onStepChange={(newVal: any) => handleNextStep(newVal, 2)}
+            stepOneInfo={stepOneInfo}
+            obtainFunds={obtainFunds}
+          />
         ) : step === 3 ? (
-          <ReceiveLoanStepThree onStepChange={handleNextStep} />
+          <ReceiveLoanStepThree
+            stepOneInfo={stepOneInfo}
+            obtainFunds={obtainFunds}
+          />
         ) : (
           <div>Invalid step</div>
         )}
