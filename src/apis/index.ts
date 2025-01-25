@@ -1,4 +1,6 @@
 import apiClient from '@/utils/request';
+import chainApiClient from '@/utils/request_chain';
+import { access } from 'fs';
 
 // Loan parameter configuration
 export const loanParamsConfig = () => apiClient.get('/leo/config');
@@ -31,3 +33,5 @@ export const getMyLoanInfo = (params: { address: string }) =>
 
 // get overview info
 export const getOverview = () => apiClient.get('/leo/overview');
+
+export const getAleoBalance = (account: string) => chainApiClient.get(process.env.NEXT_PUBLIC_CHAIN_TYPE+'/program/credits.aleo/mapping/account/'+account);

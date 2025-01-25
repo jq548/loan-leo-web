@@ -31,9 +31,7 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
   const wallets = useMemo(
     () => [
       new LeoWalletAdapter({
-        appName: 'Loan Leo',
-        isMobile: reactDetectIsMobile,
-        mobileWebviewUrl: 'https://wings.tcds.ltd',
+        appName: 'DINAR'
       }),
     ],
     []
@@ -54,7 +52,7 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
         <Hydrate state={pageProps.dehydratedState}>
           <WalletProvider
             wallets={wallets}
-            decryptPermission={DecryptPermission.OnChainHistory}
+            decryptPermission={DecryptPermission.UponRequest}
             programs={['credits.aleo']}
             autoConnect={false}
             network={ process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork }

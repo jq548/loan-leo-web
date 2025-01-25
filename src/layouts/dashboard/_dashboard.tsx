@@ -16,7 +16,7 @@ require('@demox-labs/aleo-wallet-adapter-reactui/dist/styles.css');
 function HeaderRightArea() {
   return (
     <div>
-      <WalletMultiButton className="bg-[#1253fa]" />
+      <WalletMultiButton className="bg-[#1253fa]" style={{ color: "#000000" }} />
     </div>
   );
 }
@@ -47,7 +47,8 @@ export function Header() {
         </div>
 
         <div className="flex items-center">
-          <button className="mr-4 flex rounded-full border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700">
+        <HeaderRightArea />
+          {/* <button className="mr-4 flex rounded-full border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700">
             <Image
               width={16}
               height={16}
@@ -56,8 +57,7 @@ export function Header() {
               style={{ marginRight: '2px' }}
             ></Image>
             Connect Wallet
-            {/* <HeaderRightArea /> */}
-          </button>
+          </button> */}
           <Hamburger
             isOpen={false}
             onClick={() => openDrawer('DASHBOARD_SIDEBAR')}

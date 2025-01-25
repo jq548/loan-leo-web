@@ -6,6 +6,9 @@ import Image from '@/components/ui/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getLpQuantity, loanParamsConfig } from '@/apis';
+import { WalletNotConnectedError } from "@demox-labs/aleo-wallet-adapter-base";
+import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
+import { getAleoBalance } from '@/apis';
 
 interface ILpQuantity {
   borrowing_amount: string;
@@ -29,6 +32,8 @@ const Loan: NextPageWithLayout = () => {
     installment: [],
   });
   const [pageConfig, setPageConfig] = useState<any>({});
+  const [aleoBalance, setAleoBalance] = useState(0);
+  const { publicKey } = useWallet();
 
   const getLpQuantityApi = async (value: string) => {
     try {
@@ -49,9 +54,29 @@ const Loan: NextPageWithLayout = () => {
     }
   };
 
+  const getBalance = async () => {
+    if (!publicKey) {
+      setAleoBalance(0);
+      return;
+    }
+    try {
+      const result: any = await getAleoBalance(publicKey);
+      var balanceString = result.data as string;
+      balanceString = balanceString.substring(0, balanceString.length-3);
+      const balance = parseFloat(balanceString) / 1000000;
+      setAleoBalance(balance);
+    } catch (e) {
+      console.log("get aleo balance error: ", e);
+    }
+  };
+
   useEffect(() => {
     getLoanParamsConfig();
   }, []);
+
+  useEffect(() => {
+    getBalance();
+  }, [publicKey]);
 
   const handleToReceive = () => {
     router.push('/receiveLoan');
@@ -90,7 +115,7 @@ const Loan: NextPageWithLayout = () => {
           <h2 className="flex text-4xl font-bold text-white">
             <span className="mr-1 text-xl">$</span>
             <div className="flex items-end">
-              84.20
+              { aleoBalance }
               <i className="ml-2 text-2xl">ALEO</i>
             </div>
           </h2>

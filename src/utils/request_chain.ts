@@ -1,14 +1,14 @@
 // src/utils/axiosClient.js 或 src/apis/apiClient.js
 import axios from 'axios';
 
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const chainApiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_CHAIN_RPC,
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
 });
 
-apiClient.interceptors.request.use(
+chainApiClient.interceptors.request.use(
   (config) => {
     // can do something before request is sent，like insert token
     return config;
@@ -18,18 +18,14 @@ apiClient.interceptors.request.use(
   }
 );
 
-apiClient.interceptors.response.use(
+chainApiClient.interceptors.response.use(
   (response) => {
     // can do something after response is received
-    const res = response.data;
-    if (!res || res.code !== 200) {
-      return Promise.reject(res);
-    }
-    return res.data;
+    return response;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
 
-export default apiClient;
+export default chainApiClient;
