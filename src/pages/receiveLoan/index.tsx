@@ -8,6 +8,9 @@ import Image from '@/components/ui/image';
 import { useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
+import { Transaction, WalletAdapterNetwork, } from '@demox-labs/aleo-wallet-adapter-base';
 
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
@@ -304,6 +307,7 @@ const ReceiveLoanStepTwo = (props: any) => {
 };
 // stepThree
 const ReceiveLoanStepThree = (props: any) => {
+  const { wallet, publicKey, requestRecords } = useWallet();
   const { obtainFunds, stepOneInfo } = props;
   let [isOpen, setIsOpen] = useState(false);
 
@@ -355,9 +359,43 @@ const ReceiveLoanStepThree = (props: any) => {
     }
   }, []);
 
-  const handleSubmit = () => {
-    openModal();
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+
+    // call /leo/save_deposoit before transfer
+    if (!publicKey) {
+      return;
+    };
+    try {
+      const amount = 1000000;
+      const amounts = amount.toString() + "u64";
+  
+      const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
+      const aleoTransaction = Transaction.createTransaction(
+        publicKey,
+        process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
+        'credits.aleo',
+        'transfer_public',
+        inputs,
+        100000,
+        false,
+      );
+  
+      const txId =
+        (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
+          aleoTransaction
+        )) || '';
+      if (event.target?.elements[0]?.value) {
+        event.target.elements[0].value = '';
+      }
+      console.log(txId);
+
+      openModal();
+    } catch (e) {
+      console.log("transfer error: ", e);
+    }
   };
+
   return (
     <>
       <div className="mb-4 flex items-center text-xl font-bold tracking-tighter text-black">
