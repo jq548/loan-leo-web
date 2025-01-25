@@ -57,7 +57,7 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
             decryptPermission={DecryptPermission.OnChainHistory}
             programs={['credits.aleo']}
             autoConnect={false}
-            network={ WalletAdapterNetwork.TestnetBeta }
+            network={ process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork }
           >
             <WalletModalProvider>
               <ThemeProvider

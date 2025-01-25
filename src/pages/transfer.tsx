@@ -51,10 +51,10 @@ const TransactionPage: NextPageWithLayout = () => {
     // console.log(data);
     // return;
 
-    const inputs = ["aleo1hac8kndgfp7eh545yeu6k2ue32yn3dt7qe5xl54d6lpe7xecyq9qkxc3tx", `1000000u64`];
+    const inputs = [process.env.NEXT_PUBLIC_HOLDER, `1000000u64`];
     const aleoTransaction = Transaction.createTransaction(
       publicKey,
-      WalletAdapterNetwork.TestnetBeta,
+      process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
       'credits.aleo',
       'transfer_public',
       inputs,
