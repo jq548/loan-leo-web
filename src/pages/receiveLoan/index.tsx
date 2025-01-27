@@ -377,6 +377,9 @@ const ReceiveLoanStepThree = (props: any) => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+    if (!publicKey) {
+      return;
+    }
     openLoading();
     try {
       const res = await saveMortgageInfo({
@@ -391,46 +394,42 @@ const ReceiveLoanStepThree = (props: any) => {
         loan_type: 1,
         type: 0,
       });
-      if (res?.data?.success) {
-
-        // call /leo/save_deposoit before transfer
-    if (!publicKey) {
-      return;
-    }
-      const amount = 1000000;
-      const amounts = amount.toString() + 'u64';
-
-      const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
-      const aleoTransaction = Transaction.createTransaction(
-        publicKey,
-        process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
-        'credits.aleo',
-        'transfer_public',
-        inputs,
-        100000,
-        false
-      );
-
-      const txId =
-        (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
-          aleoTransaction
-        )) || '';
-      if (event.target?.elements[0]?.value) {
-        event.target.elements[0].value = '';
-      }
-      console.log(txId);
-
-      openModal();
-        // openDialog('save success', 'success');
-      } else {
-        openDialog('save faild', 'success');
-      }
-      closeLoading();
-    } catch (error: any) {
-      closeLoading();
-      return openDialog(error.message, 'error');
-    }
-  };
+      console.log(res?.data);
+      // if (res?.data?.success) {
+          const amount = parseFloat(obtainFunds.user_aleo_amount) * 1000000;
+          const amounts = amount.toString() + 'u64';
+    
+          const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
+          const aleoTransaction = Transaction.createTransaction(
+            publicKey,
+            process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
+            'credits.aleo',
+            'transfer_public',
+            inputs,
+            100000,
+            false
+          );
+    
+          const txId =
+            (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
+              aleoTransaction
+            )) || '';
+          if (event.target?.elements[0]?.value) {
+            event.target.elements[0].value = '';
+          }
+          console.log(txId);
+    
+          openModal();
+            // openDialog('save success', 'success');
+          // } else {
+          //   openDialog('save faild', 'success');
+          // }
+          closeLoading();
+        } catch (error: any) {
+          closeLoading();
+          return openDialog(error.message, 'error');
+        }
+      };
 
   return (
     <>

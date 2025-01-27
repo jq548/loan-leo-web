@@ -85,7 +85,6 @@ const LoanDetails: NextPageWithLayout = () => {
   useEffect(() => {
     const id = router.query.id;
     const item = localStorage.getItem(`myLoan-${id}`);
-    console.log('item', item && JSON.parse(item as string));
     const originItem = item ? JSON.parse(item as string) : null;
     setOriginalData(originItem);
     if (!originItem) return;
@@ -151,7 +150,7 @@ const LoanDetails: NextPageWithLayout = () => {
                   <div className="mr-8 shrink-0 text-base tracking-tighter text-[#8A9199]">
                     {item.label}
                   </div>
-                  <div className="text-base tracking-tighter text-[#18191A]">
+                  <div className="overflow-hidden overflow-ellipsis whitespace-nowrap text-base tracking-tighter text-[#18191A]">
                     {item.value}
                   </div>
                 </div>
