@@ -86,7 +86,10 @@ const Loan: NextPageWithLayout = () => {
       return alert('please wait for your previous operation to complete');
     }
     router.push('/receiveLoan');
-    localStorage.setItem('obtainFunds', JSON.stringify(obtainFunds));
+    localStorage.setItem(
+      'obtainFunds',
+      JSON.stringify({ ...obtainFunds, user_aleo_amount: pledgeAmount })
+    );
   };
   return (
     <div className="h-full rounded-3xl bg-white">

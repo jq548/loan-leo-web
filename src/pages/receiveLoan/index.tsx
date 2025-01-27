@@ -381,7 +381,7 @@ const ReceiveLoanStepThree = (props: any) => {
     try {
       const res = await saveMortgageInfo({
         aleo_address: publicKey ? publicKey : stepOneInfo.address,
-        aleo_amount: obtainFunds.borrowing_amount,
+        aleo_amount: obtainFunds.user_aleo_amount,
         bsc_address: stepOneInfo.address,
         email: stepOneInfo.email,
         stages: stepOneInfo.installment,
