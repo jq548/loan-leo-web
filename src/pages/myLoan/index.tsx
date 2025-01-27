@@ -5,28 +5,10 @@ import { getMyLoanInfo } from '@/apis';
 import { useRouter } from 'next/router';
 import BannerIcon from '@/assets/images/loan/banner.png';
 import Image from '@/components/ui/image';
+import { getStatusLabel } from '@/utils/getStatusLabel';
+// import { useWeb3 } from '@/contexts/Web3Context';
 const MyLoan: NextPageWithLayout = () => {
   const router = useRouter();
-  // const loanList = [
-  //   {
-  //     value: '45654',
-  //     status: 'Reviewing',
-  //     contract: '156ada56asd4a98w65d1q6w5',
-  //     type: 'aleo/pos',
-  //   },
-  //   {
-  //     value: '45654',
-  //     status: 'Not passed',
-  //     contract: '156ada56asd4a98w65d1q6w5',
-  //     type: 'aleo/pos',
-  //   },
-  //   {
-  //     value: '45654',
-  //     status: 'Epaying',
-  //     contract: '156ada56asd4a98w65d1q6w5',
-  //     type: 'aleo/pos',
-  //   },
-  // ];
   const [loanList, setLoanList] = useState<any>([]);
   const handleToDetail = (contract: string) => {
     router.push(`/loanDetail?contract=${contract}`);
@@ -58,21 +40,30 @@ const MyLoan: NextPageWithLayout = () => {
                 <div className="rounded-3xl bg-white p-6">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm text-[#5C6166]">Amount</p>
-                    {item.status === 'Reviewing' ? (
-                      <p className="text-sm text-[#1EBE70]">Reviewing</p>
+                    <p className="text-sm text-[#1EBE70]">
+                      {getStatusLabel(item.status)}
+                    </p>
+                    {/* {item.status === 'Reviewing' ? (
+                      <p className="text-sm text-[#1EBE70]">
+                        {getStatusLabel(item.status)}
+                      </p>
                     ) : item.status === 'Not passed' ? (
-                      <p className="text-sm text-[#FE4C30]">Not passed</p>
+                      <p className="text-sm text-[#FE4C30]">
+                        {getStatusLabel(item.status)}
+                      </p>
                     ) : (
-                      <p className="text-sm text-[#FA9825]">Epaying</p>
-                    )}
+                      <p className="text-sm text-[#FA9825]">
+                        {getStatusLabel(item.status)}
+                      </p>
+                    )} */}
                   </div>
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-2xl font-bold text-[#18191A]">
-                      ${item.pay_back_amount}
+                      ${item.release_amount}
                     </p>
                   </div>
                   <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm text-[#5C6166] mr-6">Contract</p>
+                    <p className="mr-6 text-sm text-[#5C6166]">Contract</p>
                     <p className="text-overflow-ellipsis overflow-hidden truncate text-sm text-[#18191A]">
                       {item.aleo_address}
                     </p>

@@ -16,6 +16,11 @@ const LoanDetails: NextPageWithLayout = () => {
     setIsOpen(false);
   }
 
+  const handleConfrim = () => {
+    closeModal();
+    router.push('/supplement');
+  };
+
   function openModal() {
     setIsOpen(true);
   }
@@ -161,9 +166,9 @@ const LoanDetails: NextPageWithLayout = () => {
           Current repayment
         </button>
 
-        <button className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
+        {/* <button className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
           cover positions
-        </button>
+        </button> */}
       </main>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -212,7 +217,7 @@ const LoanDetails: NextPageWithLayout = () => {
                       type="button"
                       className="flex justify-center rounded-full bg-green-600 px-4 py-2 text-xl font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       style={{ width: '100%' }}
-                      onClick={closeModal}
+                      onClick={handleConfrim}
                     >
                       Confirm
                     </button>

@@ -99,59 +99,74 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center rounded-lg border border-[#E8EAEB] bg-white p-2 pl-4">
-            <div className="flex flex-grow items-center">
-              <span className="text-[#FE4C30]">ALEO</span>
-              <input
-                type="number"
-                value={pledgeAmount}
-                onChange={(e) => setPledgeAmount(e.target.value)}
-                // 去掉边框
-                className="w-full border-0 bg-transparent text-2xl font-bold text-[#18191A]"
-              />
-            </div>
-            <button className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white">
-              MAX
-            </button>
-          </div>
+          {!open ? (
+            <>
+              <div className="mt-10 text-xl font-bold tracking-tighter text-[#5C6166]">
+                Declaration
+              </div>
 
-          <div className="mt-2 text-sm tracking-tighter text-[#8A9199]">
-            Balance：5263.36
-          </div>
+              <p className="mt-3 text-sm tracking-tighter text-[#8A9199]">
+                When the mortgaged asset health value is lower than 75%, the
+                system will automatically close out positions and sell assets to
+                repay the loan.
+              </p>
 
-          <p className="mt-8 text-sm tracking-tighter text-[#8A9199]">
-            The mortgaged asset health value needs to be recharged to restore it
-            to the normal range.:
-          </p>
+              <p className="mt-6 text-sm tracking-tighter text-[#8A9199]">
+                You can increase your mortgaged assets or repay part of the
+                assets to restore the health value of your mortgaged assets.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="mt-6 flex items-center rounded-lg border border-[#E8EAEB] bg-white p-2 pl-4">
+                <div className="flex flex-grow items-center">
+                  <span className="text-[#FE4C30]">ALEO</span>
+                  <input
+                    type="number"
+                    value={pledgeAmount}
+                    onChange={(e) => setPledgeAmount(e.target.value)}
+                    // 去掉边框
+                    className="w-full border-0 bg-transparent text-2xl font-bold text-[#18191A]"
+                  />
+                </div>
+                <button className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white">
+                  MAX
+                </button>
+              </div>
 
-          <div className="mt-6 flex items-end text-[#18191A]">
-            <span className="text-2xl font-bold">532.35</span>
-            <span className="text-xl font-bold">ALEO</span>
-          </div>
+              <div className="mt-2 text-sm tracking-tighter text-[#8A9199]">
+                Balance：5263.36
+              </div>
 
-          {/* <div className="mt-10 text-xl font-bold tracking-tighter text-[#5C6166]">
-            Declaration
-          </div>
+              <p className="mt-8 text-sm tracking-tighter text-[#8A9199]">
+                The mortgaged asset health value needs to be recharged to
+                restore it to the normal range.:
+              </p>
 
-          <p className="mt-3 text-sm tracking-tighter text-[#8A9199]">
-            When the mortgaged asset health value is lower than 75%, the system
-            will automatically close out positions and sell assets to repay the
-            loan.
-          </p>
-
-          <p className="mt-6 text-sm tracking-tighter text-[#8A9199]">
-            You can increase your mortgaged assets or repay part of the assets
-            to restore the health value of your mortgaged assets.
-          </p> */}
+              <div className="mt-6 flex items-end text-[#18191A]">
+                <span className="text-2xl font-bold">532.35</span>
+                <span className="text-xl font-bold">ALEO</span>
+              </div>
+            </>
+          )}
         </div>
-        <button
-          className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-          onClick={() => setOpen(true)}
-        >
-          Increase mortgaged assets.
-        </button>
+        {!open ? (
+          <button
+            className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
+            onClick={() => setOpen(true)}
+          >
+            Increase mortgaged assets.
+          </button>
+        ) : (
+          <button
+            className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
+            onClick={() => setOpen(true)}
+          >
+            Confrim
+          </button>
+        )}
       </main>
-
+      {/* 
       <Transition appear show={open} as={Fragment}>
         <Dialog
           as="div"
@@ -234,7 +249,7 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
             </div>
           </div>
         </Dialog>
-      </Transition>
+      </Transition> */}
     </>
   );
 };

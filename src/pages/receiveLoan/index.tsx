@@ -10,7 +10,10 @@ import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
-import { Transaction, WalletAdapterNetwork, } from '@demox-labs/aleo-wallet-adapter-base';
+import {
+  Transaction,
+  WalletAdapterNetwork,
+} from '@demox-labs/aleo-wallet-adapter-base';
 
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
@@ -326,11 +329,11 @@ const ReceiveLoanStepThree = (props: any) => {
     },
     {
       label: 'Loan type',
-      value: 'aleo/pos',
+      value: 'aleo',
     },
     {
       label: 'collateral',
-      value: '1125aelo',
+      value: '1125usdt',
     },
   ]);
 
@@ -354,8 +357,13 @@ const ReceiveLoanStepThree = (props: any) => {
     );
     if (obtainFunds && obtainFunds.installment && stepOneInfo) {
       deepBorrowAmountFieldList[0].value = stepOneInfo.address;
+      deepBorrowAmountFieldList[2].value =
+        obtainFunds.borrowing_amount -
+        obtainFunds.installment[stepOneInfo.installment - 1]
+          .interest_installment + 'usdt';
       deepReceiveLoansFieldList[1].value = stepOneInfo.address;
-      setBorrowAmountFieldList(deepReceiveLoansFieldList);
+      setBorrowAmountFieldList(deepBorrowAmountFieldList);
+      setReceoveLoansFieldList(deepReceiveLoansFieldList);
     }
   }, []);
 
@@ -365,11 +373,11 @@ const ReceiveLoanStepThree = (props: any) => {
     // call /leo/save_deposoit before transfer
     if (!publicKey) {
       return;
-    };
+    }
     try {
       const amount = 1000000;
-      const amounts = amount.toString() + "u64";
-  
+      const amounts = amount.toString() + 'u64';
+
       const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
       const aleoTransaction = Transaction.createTransaction(
         publicKey,
@@ -378,9 +386,9 @@ const ReceiveLoanStepThree = (props: any) => {
         'transfer_public',
         inputs,
         100000,
-        false,
+        false
       );
-  
+
       const txId =
         (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
           aleoTransaction
@@ -392,7 +400,7 @@ const ReceiveLoanStepThree = (props: any) => {
 
       openModal();
     } catch (e) {
-      console.log("transfer error: ", e);
+      console.log('transfer error: ', e);
     }
   };
 
@@ -410,7 +418,9 @@ const ReceiveLoanStepThree = (props: any) => {
           Borrowing amount
         </div>
 
-        <div className="text-3xl font-bold text-[#18191A]">$1267.85</div>
+        <div className="text-3xl font-bold text-[#18191A]">
+          ${obtainFunds.borrowing_amount}
+        </div>
 
         <div className="mb-12">
           {borrowAmountFieldList.map((item) => {

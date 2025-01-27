@@ -27,14 +27,14 @@ const menuItems = [
     name: 'My loan',
     href: routes.myLoan,
   },
-  {
-    name: 'Language',
-    href: routes.myLoan,
-  },
-  {
-    name: 'Help',
-    href: routes.myLoan,
-  },
+  // {
+  //   name: 'Language',
+  //   href: routes.myLoan,
+  // },
+  // {
+  //   name: 'Help',
+  //   href: routes.myLoan,
+  // },
   // {
   //   name: 'Sign',
   //   icon: <ExchangeIcon />,

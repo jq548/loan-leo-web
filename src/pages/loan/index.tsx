@@ -6,8 +6,8 @@ import Image from '@/components/ui/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getLpQuantity, loanParamsConfig } from '@/apis';
-import { WalletNotConnectedError } from "@demox-labs/aleo-wallet-adapter-base";
-import { useWallet } from "@demox-labs/aleo-wallet-adapter-react";
+import { WalletNotConnectedError } from '@demox-labs/aleo-wallet-adapter-base';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 import { getAleoBalance } from '@/apis';
 
 interface ILpQuantity {
@@ -33,17 +33,20 @@ const Loan: NextPageWithLayout = () => {
   });
   const [pageConfig, setPageConfig] = useState<any>({});
   const [aleoBalance, setAleoBalance] = useState(0);
+  const [loading, setLoading] = useState(false);
   const { publicKey } = useWallet();
 
   const getLpQuantityApi = async (value: string) => {
+    setLoading(true);
     try {
       const res: ILpQuantity = await getLpQuantity({ amount: Number(value) });
       if (res) {
         setPledgeAmount(value);
         setObtainFunds(res);
       }
+      setLoading(false);
     } catch (error) {
-      console.log(error);
+      setLoading(false);
     }
   };
 
@@ -62,11 +65,11 @@ const Loan: NextPageWithLayout = () => {
     try {
       const result: any = await getAleoBalance(publicKey);
       var balanceString = result.data as string;
-      balanceString = balanceString.substring(0, balanceString.length-3);
+      balanceString = balanceString.substring(0, balanceString.length - 3);
       const balance = parseFloat(balanceString) / 1000000;
       setAleoBalance(balance);
     } catch (e) {
-      console.log("get aleo balance error: ", e);
+      console.log('get aleo balance error: ', e);
     }
   };
 
@@ -79,6 +82,9 @@ const Loan: NextPageWithLayout = () => {
   }, [publicKey]);
 
   const handleToReceive = () => {
+    if (loading) {
+      return alert('please wait for your previous operation to complete');
+    }
     router.push('/receiveLoan');
     localStorage.setItem('obtainFunds', JSON.stringify(obtainFunds));
   };
@@ -115,7 +121,7 @@ const Loan: NextPageWithLayout = () => {
           <h2 className="flex text-4xl font-bold text-white">
             <span className="mr-1 text-xl">$</span>
             <div className="flex items-end">
-              { aleoBalance }
+              {aleoBalance}
               <i className="ml-2 text-2xl">ALEO</i>
             </div>
           </h2>
@@ -123,14 +129,14 @@ const Loan: NextPageWithLayout = () => {
 
         <div className="h-600 mt-[-40px] rounded-3xl bg-white p-6">
           <div className="mb-2 text-2xl font-bold text-black">Pledge</div>
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <button className="flex-1 rounded-lg border border-black bg-white py-3 text-gray-700">
               ALEO
             </button>
             <button className="flex-1 rounded-lg border border-black bg-white py-3 text-gray-700">
               POS NODE ALEO
             </button>
-          </div>
+          </div> */}
 
           <div className="mt-4 flex items-center rounded-lg bg-gray-100 px-4 py-2">
             <div className="flex flex-grow items-center">

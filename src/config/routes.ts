@@ -1,5 +1,5 @@
 const routes = {
-  homePage: '/homePage',
+  homePage: '/',
   // gettingStarted: '/',
   sign: '/sign',
   decrypt: '/decrypt',
