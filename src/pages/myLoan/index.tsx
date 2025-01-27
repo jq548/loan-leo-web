@@ -6,19 +6,23 @@ import { useRouter } from 'next/router';
 import BannerIcon from '@/assets/images/loan/banner.png';
 import Image from '@/components/ui/image';
 import { getStatusLabel } from '@/utils/getStatusLabel';
-// import { useWeb3 } from '@/contexts/Web3Context';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+
 const MyLoan: NextPageWithLayout = () => {
   const router = useRouter();
   const [loanList, setLoanList] = useState<any>([]);
+  const { publicKey } = useWallet();
   const handleToDetail = (item: any) => {
     localStorage.setItem(`myLoan-${item.id}`, JSON.stringify(item));
     router.push(`/loanDetail?id=${item.id}`);
   };
 
   const getMyLoanList = async () => {
+    if (!publicKey) {
+      return;
+    }
     const res = await getMyLoanInfo({
-      address:
-        'aleo1hac8kndgfp7eh545yeu6k2ue32yn3dt7qe5xl54d6lpe7xecyq9qkxc3tx',
+      address: publicKey,
     });
     if (res) {
       setLoanList(res);
@@ -27,7 +31,7 @@ const MyLoan: NextPageWithLayout = () => {
 
   useEffect(() => {
     getMyLoanList();
-  }, []);
+  }, [publicKey]);
   return (
     <div className="h-full rounded-3xl">
       <main className="w-full max-w-screen-lg rounded-lg">
