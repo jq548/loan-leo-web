@@ -381,7 +381,7 @@ const ReceiveLoanStepThree = (props: any) => {
     try {
       const res = await saveMortgageInfo({
         aleo_address: publicKey ? publicKey : stepOneInfo.address,
-        aleo_amount: obtainFunds.borrowing_amount,
+        aleo_amount: parseFloat(obtainFunds.user_aleo_amount),
         bsc_address: stepOneInfo.address,
         email: stepOneInfo.email,
         stages: stepOneInfo.installment,
@@ -392,20 +392,11 @@ const ReceiveLoanStepThree = (props: any) => {
         type: 0,
       });
       if (res?.data?.success) {
-        openDialog('save success', 'success');
-      } else {
-        openDialog('save faild', 'success');
-      }
-      closeLoading();
-    } catch (error: any) {
-      closeLoading();
-      return openDialog(error.message, 'error');
-    }
-    // call /leo/save_deposoit before transfer
+
+        // call /leo/save_deposoit before transfer
     if (!publicKey) {
       return;
     }
-    try {
       const amount = 1000000;
       const amounts = amount.toString() + 'u64';
 
@@ -430,8 +421,14 @@ const ReceiveLoanStepThree = (props: any) => {
       console.log(txId);
 
       openModal();
-    } catch (e) {
-      console.log('transfer error: ', e);
+        // openDialog('save success', 'success');
+      } else {
+        openDialog('save faild', 'success');
+      }
+      closeLoading();
+    } catch (error: any) {
+      closeLoading();
+      return openDialog(error.message, 'error');
     }
   };
 
