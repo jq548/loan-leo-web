@@ -4,13 +4,14 @@ import DashboardLayout from '@/layouts/dashboard/_dashboard';
 import BackIcon from '@/assets/images/global/back-icon.png';
 import WarnIcon from '@/assets/images/loan/warning-icon-2.png';
 import Image from '@/components/ui/image';
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
 
 const LoanDetails: NextPageWithLayout = () => {
   const router = useRouter();
-  let [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [originalData, setOriginalData] = useState<any>({});
 
   function closeModal() {
     setIsOpen(false);
@@ -43,11 +44,11 @@ const LoanDetails: NextPageWithLayout = () => {
     },
     {
       label: 'interest rate',
-      value: '0.5%week',
+      value: '0.5%',
     },
   ];
 
-  const receiveLoansFieldList = [
+  const [receiveLoansFieldList, setReceoveLoansFieldList] = useState([
     {
       label: 'Current period repayment due',
       value: '1.25',
@@ -72,12 +73,29 @@ const LoanDetails: NextPageWithLayout = () => {
       label: 'hash',
       value: '0x5d6****a4dw68',
     },
-  ];
+  ]);
 
   const handlReturn = () => {
     // return back to previous page
+    const id = router.query.id;
+    localStorage.removeItem(`myLoan-${id}`);
     router.back();
   };
+
+  useEffect(() => {
+    const id = router.query.id;
+    const item = localStorage.getItem(`myLoan-${id}`);
+    console.log('item', item && JSON.parse(item as string));
+    const originItem = item ? JSON.parse(item as string) : null;
+    setOriginalData(originItem);
+    if (!originItem) return;
+    const deepReceiveLoansFieldList = JSON.parse(
+      JSON.stringify(receiveLoansFieldList)
+    );
+    deepReceiveLoansFieldList[5].value = originItem.release_hash;
+    setReceoveLoansFieldList(deepReceiveLoansFieldList);
+    return () => {};
+  }, []);
 
   return (
     <>
@@ -97,7 +115,7 @@ const LoanDetails: NextPageWithLayout = () => {
         <div className="mb-4 flex items-center justify-between">
           <p className="flex items-start font-bold text-[#18191A]">
             <span className="mr-1 text-xl">$</span>
-            <span className="text-3xl">1267.86</span>
+            <span className="text-3xl">{originalData.release_amount}</span>
           </p>
         </div>
 
@@ -148,7 +166,7 @@ const LoanDetails: NextPageWithLayout = () => {
               Health value of mortgaged assets
             </div>
             <div className="text-base tracking-tighter text-[#18191A]">
-              100%
+              {(originalData.health * 100).toFixed(0)}%
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between">

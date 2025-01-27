@@ -25,7 +25,7 @@ interface ISaveMortgageInfoParamsType {
   loan_id?: number; // when type === 1, this param is required
 }
 export const saveMortgageInfo = (data: ISaveMortgageInfoParamsType) =>
-  apiClient.post<ISaveMortgageInfoParamsType>('/leo/save', { data });
+  apiClient.post('/leo/save_deposoit', data);
 
 // get my loan info
 export const getMyLoanInfo = (params: { address: string }) =>
@@ -34,4 +34,9 @@ export const getMyLoanInfo = (params: { address: string }) =>
 // get overview info
 export const getOverview = () => apiClient.get('/leo/overview');
 
-export const getAleoBalance = (account: string) => chainApiClient.get(process.env.NEXT_PUBLIC_CHAIN_TYPE+'/program/credits.aleo/mapping/account/'+account);
+export const getAleoBalance = (account: string) =>
+  chainApiClient.get(
+    process.env.NEXT_PUBLIC_CHAIN_TYPE +
+      '/program/credits.aleo/mapping/account/' +
+      account
+  );

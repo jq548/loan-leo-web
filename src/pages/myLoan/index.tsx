@@ -10,8 +10,9 @@ import { getStatusLabel } from '@/utils/getStatusLabel';
 const MyLoan: NextPageWithLayout = () => {
   const router = useRouter();
   const [loanList, setLoanList] = useState<any>([]);
-  const handleToDetail = (contract: string) => {
-    router.push(`/loanDetail?contract=${contract}`);
+  const handleToDetail = (item: any) => {
+    localStorage.setItem(`myLoan-${item.id}`, JSON.stringify(item));
+    router.push(`/loanDetail?id=${item.id}`);
   };
 
   const getMyLoanList = async () => {
@@ -77,7 +78,7 @@ const MyLoan: NextPageWithLayout = () => {
                   <div className="flex justify-end">
                     <button
                       className="rounded-full border border-[#191722] bg-white px-6 py-2 text-[#18191A]"
-                      onClick={() => handleToDetail(item.contract)}
+                      onClick={() => handleToDetail(item)}
                     >
                       Details
                     </button>

@@ -14,6 +14,11 @@ import {
   Transaction,
   WalletAdapterNetwork,
 } from '@demox-labs/aleo-wallet-adapter-base';
+import LoadingSpinner from '@/components/loading';
+import { useLoading } from '@/components/loading/loading';
+import { useDialog } from '@/components/confirm-dialog/confirmDialog';
+import ConfirmDialog from '@/components/confirm-dialog';
+import { saveMortgageInfo } from '@/apis';
 
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
@@ -312,7 +317,9 @@ const ReceiveLoanStepTwo = (props: any) => {
 const ReceiveLoanStepThree = (props: any) => {
   const { wallet, publicKey, requestRecords } = useWallet();
   const { obtainFunds, stepOneInfo } = props;
-  let [isOpen, setIsOpen] = useState(false);
+  let [open, setIsOpen] = useState(false);
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
+  const { isLoading, openLoading, closeLoading } = useLoading();
 
   function closeModal() {
     setIsOpen(false);
@@ -360,7 +367,8 @@ const ReceiveLoanStepThree = (props: any) => {
       deepBorrowAmountFieldList[2].value =
         obtainFunds.borrowing_amount -
         obtainFunds.installment[stepOneInfo.installment - 1]
-          .interest_installment + 'usdt';
+          .interest_installment +
+        'usdt';
       deepReceiveLoansFieldList[1].value = stepOneInfo.address;
       setBorrowAmountFieldList(deepBorrowAmountFieldList);
       setReceoveLoansFieldList(deepReceiveLoansFieldList);
@@ -369,7 +377,30 @@ const ReceiveLoanStepThree = (props: any) => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-
+    openLoading();
+    try {
+      const res = await saveMortgageInfo({
+        aleo_address: publicKey ? publicKey : stepOneInfo.address,
+        aleo_amount: obtainFunds.borrowing_amount,
+        bsc_address: stepOneInfo.address,
+        email: stepOneInfo.email,
+        stages: stepOneInfo.installment,
+        day_per_stage:
+          obtainFunds.installment[stepOneInfo.installment - 1]
+            .day_per_installment,
+        loan_type: 1,
+        type: 0,
+      });
+      if (res?.data?.success) {
+        openDialog('save success', 'success');
+      } else {
+        openDialog('save faild', 'success');
+      }
+      closeLoading();
+    } catch (error: any) {
+      closeLoading();
+      return openDialog(error.message, 'error');
+    }
     // call /leo/save_deposoit before transfer
     if (!publicKey) {
       return;
@@ -501,7 +532,7 @@ const ReceiveLoanStepThree = (props: any) => {
         </button>
       </div>
 
-      <Transition appear show={isOpen} as={Fragment}>
+      <Transition appear show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <Transition.Child
             as={Fragment}
@@ -556,6 +587,15 @@ const ReceiveLoanStepThree = (props: any) => {
           </div>
         </Dialog>
       </Transition>
+
+      <ConfirmDialog
+        isOpen={isOpen}
+        onClose={closeDialog}
+        message={message}
+        status={status as 'success' | 'error'}
+      />
+
+      <LoadingSpinner isLoading={isLoading} />
     </>
   );
 };
