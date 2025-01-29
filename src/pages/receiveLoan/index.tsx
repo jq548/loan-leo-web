@@ -394,8 +394,8 @@ const ReceiveLoanStepThree = (props: any) => {
         loan_type: 1,
         type: 0,
       });
-      console.log(res?.data);
-      // if (res?.data?.success) {
+      
+      if (res?.success) {
           const amount = parseFloat(obtainFunds.user_aleo_amount) * 1000000;
           const amounts = amount.toString() + 'u64';
     
@@ -414,22 +414,20 @@ const ReceiveLoanStepThree = (props: any) => {
             (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
               aleoTransaction
             )) || '';
-          if (event.target?.elements[0]?.value) {
-            event.target.elements[0].value = '';
-          }
-          console.log(txId);
-    
-          openModal();
-            // openDialog('save success', 'success');
-          // } else {
-          //   openDialog('save faild', 'success');
+          // if (event.target?.elements[0]?.value) {
+          //   event.target.elements[0].value = '';
           // }
-          closeLoading();
-        } catch (error: any) {
-          closeLoading();
-          return openDialog(error.message, 'error');
+          console.log(txId);
+          openModal();
+        } else {
+          openDialog(res?.message, 'failed');
         }
-      };
+        closeLoading();
+      } catch (error: any) {
+        closeLoading();
+        return openDialog(error.message, 'error');
+      }
+    };
 
   return (
     <>
