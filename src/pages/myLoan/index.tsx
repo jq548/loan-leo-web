@@ -8,13 +8,69 @@ import Image from '@/components/ui/image';
 import { getStatusLabel } from '@/utils/getStatusLabel';
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 
+const Banner = ({ images }: any) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  let intervalId: any;
+  useEffect(() => {
+    if (images.length > 1) {
+      intervalId = setInterval(() => {
+        setCurrentIndex((prev) => {
+          return prev + 1 > images.length ? 0 : prev + 1;
+        });
+      }, 3000); // 每3秒切换一次
+    }
+    return () => intervalId && clearInterval(intervalId); // 清除定时器
+  }, [images.length]);
+
+  const extendedImages =
+    images.length > 1
+      ? [images[images.length - 1], ...images, images[0]]
+      : images;
+
+  return (
+    <>
+      {images.length ? (
+        <div className="relative mb-4 flex h-[172px] w-full overflow-hidden rounded-3xl">
+          {extendedImages.map((src: string, index: number) => (
+            <div
+              key={index}
+              className="h-full w-full shrink-0 transition-transform duration-1000 ease-in-out"
+              style={{
+                transform: `translateX(-${
+                  currentIndex * (100 / images.length)
+                }%)`,
+              }}
+            >
+              <Image
+                layout="fill"
+                src={src || BannerIcon}
+                alt={`Banner ${index}`}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
+
 const MyLoan: NextPageWithLayout = () => {
   const router = useRouter();
   const [loanList, setLoanList] = useState<any>([]);
   const { publicKey } = useWallet();
+  const [banner, setBanner] = useState<any>([]);
   const handleToDetail = (item: any) => {
     localStorage.setItem(`myLoan-${item.id}`, JSON.stringify(item));
     router.push(`/loanDetail?id=${item.id}`);
+  };
+
+  const getGlobalConfig = () => {
+    const res = localStorage.getItem('GLOBAL_PARAMS_CONFIG');
+    if (res) {
+      setBanner(res ? JSON.parse(res).banners : []);
+    }
   };
 
   const getMyLoanList = async () => {
@@ -30,14 +86,19 @@ const MyLoan: NextPageWithLayout = () => {
   };
 
   useEffect(() => {
+    getGlobalConfig();
+  }, []);
+
+  useEffect(() => {
     getMyLoanList();
   }, [publicKey]);
   return (
     <div className="h-full rounded-3xl">
       <main className="w-full max-w-screen-lg rounded-lg">
-        <div className="mb-3 rounded-3xl">
+        <Banner images={banner} />
+        {/* <div className="mb-3 rounded-3xl">
           <Image className="w-full" height={600} src={BannerIcon}></Image>
-        </div>
+        </div> */}
         {loanList.length &&
           loanList.map((item: any) => {
             return (

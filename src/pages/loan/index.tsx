@@ -5,7 +5,7 @@ import LoanIcon from '@/assets/images/loan/loan-icon-1.png';
 import Image from '@/components/ui/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { getLpQuantity, loanParamsConfig } from '@/apis';
+import { getLpQuantity } from '@/apis';
 import { WalletNotConnectedError } from '@demox-labs/aleo-wallet-adapter-base';
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 import { getAleoBalance } from '@/apis';
@@ -51,9 +51,9 @@ const Loan: NextPageWithLayout = () => {
   };
 
   const getLoanParamsConfig = async () => {
-    const res = await loanParamsConfig();
+    const res = localStorage.getItem('GLOBAL_PARAMS_CONFIG');
     if (res) {
-      setPageConfig(res);
+      setPageConfig(res ? JSON.parse(res) : {});
     }
   };
 
