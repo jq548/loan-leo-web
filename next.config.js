@@ -20,6 +20,9 @@ module.exports = withPWA({
       ignoreDuringBuilds: true,
     },
   }),
+  images: {
+    domains: ['wings.tcds.ltd'],
+  },
   webpack5: true,
   webpack: (config, options) => {
     config.ignoreWarnings = [/Failed to parse source map/];
