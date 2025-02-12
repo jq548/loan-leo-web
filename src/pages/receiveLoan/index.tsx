@@ -256,6 +256,7 @@ const ReceiveLoanStepTwo = (props: any) => {
   useEffect(() => {
     const deepFieldList = JSON.parse(JSON.stringify(fieldList));
     if (obtainFunds && obtainFunds.installment && stepOneInfo) {
+      deepFieldList[1].value = obtainFunds.user_aleo_amount + 'aleo';
       deepFieldList[2].value = obtainFunds.collateral_amount + 'USDT';
       deepFieldList[3].value = obtainFunds.collateral_rate + 'x';
       deepFieldList[4].value = obtainFunds.borrowing_amount + 'USDT';
@@ -353,6 +354,10 @@ const ReceiveLoanStepThree = (props: any) => {
       label: 'collateral',
       value: '1125usdt',
     },
+    {
+      label: 'collateral value',
+      value: '1125usdt',
+    },
   ]);
 
   const [receiveLoansFieldList, setReceoveLoansFieldList] = useState([
@@ -366,6 +371,21 @@ const ReceiveLoanStepThree = (props: any) => {
     },
   ]);
 
+  const desensitizeText = (text: string) => {
+    const startLength = 7;
+    const endLength = 6;
+    const middleMaskLength = Math.min(4, text.length - startLength - endLength);
+    if (text.length <= startLength + endLength) {
+      return text;
+    }
+
+    const start = text.slice(0, startLength);
+    const end = text.slice(-endLength);
+    const middle = '*'.repeat(middleMaskLength)
+
+    return start + middle + end;
+  };
+
   useEffect(() => {
     const deepBorrowAmountFieldList = JSON.parse(
       JSON.stringify(borrowAmountFieldList)
@@ -374,13 +394,17 @@ const ReceiveLoanStepThree = (props: any) => {
       JSON.stringify(receiveLoansFieldList)
     );
     if (obtainFunds && obtainFunds.installment && stepOneInfo) {
-      deepBorrowAmountFieldList[0].value = stepOneInfo.address;
+      deepBorrowAmountFieldList[0].value = desensitizeText(
+        publicKey ? publicKey : stepOneInfo.address
+      );
       deepBorrowAmountFieldList[2].value =
+        obtainFunds.user_aleo_amount + 'aleo';
+      deepBorrowAmountFieldList[3].value =
         obtainFunds.borrowing_amount -
         obtainFunds.installment[stepOneInfo.installment - 1]
           .interest_installment +
         'usdt';
-      deepReceiveLoansFieldList[1].value = stepOneInfo.address;
+      deepReceiveLoansFieldList[1].value = desensitizeText(stepOneInfo.address);
       setBorrowAmountFieldList(deepBorrowAmountFieldList);
       setReceoveLoansFieldList(deepReceiveLoansFieldList);
     }
