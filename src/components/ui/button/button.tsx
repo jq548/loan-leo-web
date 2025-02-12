@@ -108,7 +108,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         buttonColorClassNames = `${colorClassNames[0]} ${
           disabled || isLoading
             ? ''
-            : 'hover:bg-gray-100 dark:hover:bg-gray-800 focus:bg-gray-100 dark:focus:bg-gray-800'
+            : ''
         } `;
         buttonDripColor = 'rgba(0, 0, 0, 0.1)';
         break;
@@ -128,9 +128,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           !disabled
             ? buttonColorClassNames
             : 'cursor-not-allowed bg-gray-100 text-gray-400',
-          disabled || isLoading || variant === 'transparent'
-            ? ''
-            : 'hover:-translate-y-0.5 hover:shadow-large focus:-translate-y-0.5 focus:shadow-large focus:outline-none',
           isLoading && 'pointer-events-auto cursor-default focus:outline-none',
           fullWidth && 'w-full',
           color === 'white' || color === 'gray'
