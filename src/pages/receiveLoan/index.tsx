@@ -23,11 +23,16 @@ import { saveMortgageInfo } from '@/apis';
 // stepOne
 const ReceiveLoanStepOne = (props: any) => {
   const { onStepChange, obtainFunds } = props;
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
   const [info, setInfo] = useState({
     address: '',
     email: '',
     installment: 1,
   });
+  const handleNextStepClick = () => {
+    if (!info.address) return openDialog('Please enter your address');
+    onStepChange({ step: 2, info });
+  };
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
@@ -132,11 +137,17 @@ const ReceiveLoanStepOne = (props: any) => {
 
         <button
           className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-          onClick={() => onStepChange({ step: 2, info })}
+          onClick={handleNextStepClick}
         >
           Next step
         </button>
       </div>
+      <ConfirmDialog
+        isOpen={isOpen}
+        onClose={closeDialog}
+        message={message}
+        status={status as 'success' | 'error'}
+      />
     </>
   );
 };
@@ -394,40 +405,40 @@ const ReceiveLoanStepThree = (props: any) => {
         loan_type: 1,
         type: 0,
       });
-      
+
       if (res?.success) {
-          const amount = parseFloat(obtainFunds.user_aleo_amount) * 1000000;
-          const amounts = amount.toString() + 'u64';
-    
-          const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
-          const aleoTransaction = Transaction.createTransaction(
-            publicKey,
-            process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
-            'credits.aleo',
-            'transfer_public',
-            inputs,
-            100000,
-            false
-          );
-    
-          const txId =
-            (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
-              aleoTransaction
-            )) || '';
-          // if (event.target?.elements[0]?.value) {
-          //   event.target.elements[0].value = '';
-          // }
-          console.log(txId);
-          openModal();
-        } else {
-          openDialog(res?.message, 'failed');
-        }
-        closeLoading();
-      } catch (error: any) {
-        closeLoading();
-        return openDialog(error.message, 'error');
+        const amount = parseFloat(obtainFunds.user_aleo_amount) * 1000000;
+        const amounts = amount.toString() + 'u64';
+
+        const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
+        const aleoTransaction = Transaction.createTransaction(
+          publicKey,
+          process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
+          'credits.aleo',
+          'transfer_public',
+          inputs,
+          100000,
+          false
+        );
+
+        const txId =
+          (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
+            aleoTransaction
+          )) || '';
+        // if (event.target?.elements[0]?.value) {
+        //   event.target.elements[0].value = '';
+        // }
+        console.log(txId);
+        openModal();
+      } else {
+        openDialog(res?.message, 'failed');
       }
-    };
+      closeLoading();
+    } catch (error: any) {
+      closeLoading();
+      return openDialog(error.message, 'error');
+    }
+  };
 
   return (
     <>
