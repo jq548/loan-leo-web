@@ -31,10 +31,43 @@ const ReceiveLoanStepOne = (props: any) => {
   });
   const handleNextStepClick = () => {
     if (!info.address) return openDialog('Please enter your address');
+    const addressValid = handleAddressBlur();
+    if (!addressValid) return;
+    const emailValid = handleEmailBlur();
+    if (!emailValid) return;
     onStepChange({ step: 2, info });
   };
+
+  const handleAddressBlur = () => {
+    const address = info.address;
+    // first valid address regex ^0x[0-9a-fA-F]{40}$
+    if (address) {
+      const reg = /^0x[0-9a-fA-F]{40}$/;
+      const validAddress = reg.test(address);
+      if (!validAddress) {
+        openDialog('Please enter the correct address！');
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
+  const handleEmailBlur = () => {
+    const email = info.email;
+    // first valid address regex ^0x[0-9a-fA-F]{40}$
+    if (email) {
+      const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+      const validEmail = reg.test(email);
+      if (!validEmail) {
+        openDialog('Please enter the correct email!');
+        return false;
+      } else {
+        return true;
+      }
+    }
+  };
   return (
-    <>
+    <div className="min-h-[1000px]">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tighter text-black">
           Deadline & weekly interest rate
@@ -94,12 +127,8 @@ const ReceiveLoanStepOne = (props: any) => {
             type="text"
             id="address"
             value={info.address}
-            onChange={(e) => {
-              setInfo({
-                ...info,
-                address: e.target.value,
-              });
-            }}
+            onChange={(e) => setInfo({ ...info, address: e.target.value })}
+            onBlur={handleAddressBlur}
             placeholder="Required item"
             className="w-full rounded-xl border border-white px-4 py-2 text-[#18191A]"
           />
@@ -130,6 +159,7 @@ const ReceiveLoanStepOne = (props: any) => {
                 email: e.target.value,
               });
             }}
+            onBlur={handleEmailBlur}
             placeholder="Optional item"
             className="w-full rounded-xl border border-white px-4 py-2 text-[#18191A]"
           />
@@ -148,7 +178,7 @@ const ReceiveLoanStepOne = (props: any) => {
         message={message}
         status={status as 'success' | 'error'}
       />
-    </>
+    </div>
   );
 };
 // stepTwo
@@ -381,7 +411,7 @@ const ReceiveLoanStepThree = (props: any) => {
 
     const start = text.slice(0, startLength);
     const end = text.slice(-endLength);
-    const middle = '*'.repeat(middleMaskLength)
+    const middle = '*'.repeat(middleMaskLength);
 
     return start + middle + end;
   };
@@ -413,7 +443,7 @@ const ReceiveLoanStepThree = (props: any) => {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     if (!publicKey) {
-      return;
+      return openDialog('Please connect your wallet first!', 'error');
     }
     openLoading();
     try {

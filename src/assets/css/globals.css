@@ -128,3 +128,10 @@ Styles for Swiper slider
 .product-share .react-share__ShareButton {
   @apply flex flex-col items-center justify-center;
 }
+
+
+/* CSS3 标准 - Firefox, Chrome, Opera等 */
+input::placeholder {
+  font-weight: 700;
+  font-size: 12px;
+}

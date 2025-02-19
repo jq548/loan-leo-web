@@ -9,6 +9,8 @@ import { getLpQuantity } from '@/apis';
 import { WalletNotConnectedError } from '@demox-labs/aleo-wallet-adapter-base';
 import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
 import { getAleoBalance } from '@/apis';
+import { useDialog } from '@/components/confirm-dialog/confirmDialog';
+import ConfirmDialog from '@/components/confirm-dialog';
 
 interface ILpQuantity {
   borrowing_amount: string;
@@ -24,7 +26,8 @@ interface ILpQuantity {
 
 const Loan: NextPageWithLayout = () => {
   const router = useRouter();
-  const [pledgeAmount, setPledgeAmount] = useState('0.00');
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
+  const [pledgeAmount, setPledgeAmount] = useState<number | string>(0);
   const [obtainFunds, setObtainFunds] = useState<ILpQuantity>({
     borrowing_amount: '0',
     collateral_amount: '0',
@@ -37,11 +40,17 @@ const Loan: NextPageWithLayout = () => {
   const { publicKey } = useWallet();
 
   const getLpQuantityApi = async (value: string) => {
+    const resultValue = handlePledgeAmountChange(value);
     setLoading(true);
     try {
-      const res: ILpQuantity = await getLpQuantity({ amount: Number(value) });
+      if (!publicKey) {
+        setLoading(false);
+        return openDialog('Please connect your wallet first!', 'error');
+      }
+      const res: ILpQuantity = await getLpQuantity({
+        amount: Number(value),
+      });
       if (res) {
-        setPledgeAmount(value);
         setObtainFunds(res);
       }
       setLoading(false);
@@ -73,6 +82,24 @@ const Loan: NextPageWithLayout = () => {
     }
   };
 
+  const handleMaxClick = () => {
+    if (!publicKey) {
+      return openDialog('Please connect your wallet first!', 'error');
+    }
+    setPledgeAmount(aleoBalance.toFixed(2));
+  };
+
+  const handlePledgeAmountChange = (value: string) => {
+    if (Number(value) > aleoBalance) {
+      openDialog('Your balance is insufficient！', 'error');
+      setPledgeAmount(aleoBalance);
+      return aleoBalance;
+    } else {
+      setPledgeAmount(value);
+      return value;
+    }
+  };
+
   useEffect(() => {
     getLoanParamsConfig();
   }, []);
@@ -83,7 +110,13 @@ const Loan: NextPageWithLayout = () => {
 
   const handleToReceive = () => {
     if (loading) {
-      return alert('please wait for your previous operation to complete');
+      return openDialog(
+        'please wait for your previous operation to complete',
+        'error'
+      );
+    }
+    if (!publicKey) {
+      return openDialog('Please connect your wallet first!', 'error');
     }
     router.push('/receiveLoan');
     localStorage.setItem(
@@ -92,47 +125,48 @@ const Loan: NextPageWithLayout = () => {
     );
   };
   return (
-    <div className="h-full rounded-3xl bg-white">
-      <main className="w-full max-w-screen-lg rounded-lg">
-        <div className="bg-[#f4f4f4]">
-          <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-4xl font-bold text-black">Borrow</h1>
-            <p className="text-xl tracking-tighter  text-black">
-              <span
-                className="text-sm text-gray-400"
-                style={{ letterSpacing: '-2px' }}
-              >
-                ALEO Price
-              </span>
-              <span className="ml-1 text-lg font-bold">
-                ${pageConfig.price || 0}
-              </span>
-            </p>
-          </div>
-
-          <p className="pb-6 text-[#1EBE70]">Pledge Aleo to obtain funds</p>
-        </div>
-
-        <div
-          className="mt-[-16px] rounded-3xl p-6 pb-16"
-          style={{ background: 'linear-gradient(90deg, #02090F, #032D2B)' }}
-        >
-          <div className="mb-2 flex items-center text-xl text-yellow-400">
-            <Image width={20} height={20} src={LoanIcon}></Image>
-            <span className="ml-2 text-[#FA9825]">ALEO Balance</span>
-          </div>
-          <h2 className="flex text-4xl font-bold text-white">
-            <span className="mr-1 text-xl">$</span>
-            <div className="flex items-end">
-              {aleoBalance}
-              <i className="ml-2 text-2xl">ALEO</i>
+    <>
+      <div className="h-full rounded-3xl bg-white">
+        <main className="w-full max-w-screen-lg rounded-lg">
+          <div className="bg-[#f4f4f4]">
+            <div className="mb-4 flex items-center justify-between">
+              <h1 className="text-4xl font-bold text-black">Borrow</h1>
+              <p className="text-xl tracking-tighter  text-black">
+                <span
+                  className="text-sm text-gray-400"
+                  style={{ letterSpacing: '-2px' }}
+                >
+                  ALEO Price
+                </span>
+                <span className="ml-1 text-lg font-bold">
+                  ${pageConfig.price || 0}
+                </span>
+              </p>
             </div>
-          </h2>
-        </div>
 
-        <div className="h-600 mt-[-40px] rounded-3xl bg-white p-6">
-          <div className="mb-2 text-2xl font-bold text-black">Pledge</div>
-          {/* <div className="flex gap-2">
+            <p className="pb-6 text-[#1EBE70]">Pledge Aleo to obtain funds</p>
+          </div>
+
+          <div
+            className="mt-[-16px] rounded-3xl p-6 pb-16"
+            style={{ background: 'linear-gradient(90deg, #02090F, #032D2B)' }}
+          >
+            <div className="mb-2 flex items-center text-xl text-yellow-400">
+              <Image width={20} height={20} src={LoanIcon}></Image>
+              <span className="ml-2 text-[#FA9825]">ALEO Balance</span>
+            </div>
+            <h2 className="flex text-4xl font-bold text-white">
+              <span className="mr-1 text-xl">$</span>
+              <div className="flex items-end">
+                {aleoBalance}
+                <i className="ml-2 text-2xl">ALEO</i>
+              </div>
+            </h2>
+          </div>
+
+          <div className="h-600 mt-[-40px] rounded-3xl bg-white p-6">
+            <div className="mb-2 text-2xl font-bold text-black">Pledge</div>
+            {/* <div className="flex gap-2">
             <button className="flex-1 rounded-lg border border-black bg-white py-3 text-gray-700">
               ALEO
             </button>
@@ -141,65 +175,77 @@ const Loan: NextPageWithLayout = () => {
             </button>
           </div> */}
 
-          <div className="mt-4 flex items-center rounded-lg bg-gray-100 px-4 py-2">
-            <div className="flex flex-grow items-center">
-              <span className="text-[#FE4C30]">ALEO</span>
+            <div className="mt-4 flex items-center rounded-lg bg-gray-100 px-4 py-2">
+              <div className="flex flex-grow items-center">
+                <span className="text-[#FE4C30]">ALEO</span>
+                <input
+                  type="number"
+                  value={pledgeAmount}
+                  onChange={(e) => setPledgeAmount(e.target.value)}
+                  onBlur={(e) => getLpQuantityApi(e.target.value)}
+                  placeholder="Please enter the amount of mortgage"
+                  className="w-full border-0 bg-transparent text-3xl font-bold text-[#18191A]"
+                />
+              </div>
+              <button
+                className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white"
+                onClick={handleMaxClick}
+              >
+                MAX
+              </button>
+            </div>
+            <div className="relative mb-1 mt-6">
+              <label className="absolute left-4 top-[-7px] block bg-white text-xs text-black">
+                Obtain funds
+              </label>
               <input
                 type="number"
-                value={pledgeAmount}
-                onChange={(e) => setPledgeAmount(e.target.value)}
-                onBlur={(e) => getLpQuantityApi(e.target.value)}
-                className="w-full border-0 bg-transparent text-3xl font-bold text-[#18191A]"
+                value={obtainFunds.borrowing_amount}
+                onChange={() => {}}
+                disabled
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-xl text-[#B8C2CC]"
               />
+              <label className="absolute right-4 top-4 block bg-white text-xs text-black">
+                AIDI
+              </label>
             </div>
-            <button className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white">
-              MAX
+
+            <p className="mb-10 text-xs text-[#8A9199]">
+              Weekly interest rate{' '}
+              {(
+                (obtainFunds.installment && obtainFunds.installment.length
+                  ? Number(obtainFunds.installment[0]?.interest_rate)
+                  : 0) * 100
+              ).toFixed(2)}
+              %–
+              {(
+                (obtainFunds.installment && obtainFunds.installment.length
+                  ? Number(
+                      obtainFunds.installment[
+                        obtainFunds.installment.length - 1
+                      ]?.interest_rate
+                    )
+                  : 0) * 100
+              ).toFixed(2)}
+              %
+            </p>
+
+            <button
+              className="mt-6 w-full rounded-full bg-green-500 px-6 py-3 text-white"
+              onClick={handleToReceive}
+            >
+              Confirm
             </button>
           </div>
-          <div className="relative mb-1 mt-6">
-            <label className="absolute left-4 top-[-7px] block bg-white text-xs text-black">
-              Obtain funds
-            </label>
-            <input
-              type="number"
-              value={obtainFunds.borrowing_amount}
-              onChange={() => {}}
-              disabled
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-xl text-[#B8C2CC]"
-            />
-            <label className="absolute right-4 top-4 block bg-white text-xs text-black">
-              AIDI
-            </label>
-          </div>
-
-          <p className="mb-10 text-xs text-[#8A9199]">
-            Weekly interest rate{' '}
-            {(
-              (obtainFunds.installment && obtainFunds.installment.length
-                ? Number(obtainFunds.installment[0]?.interest_rate)
-                : 0) * 100
-            ).toFixed(2)}
-            %–
-            {(
-              (obtainFunds.installment && obtainFunds.installment.length
-                ? Number(
-                    obtainFunds.installment[obtainFunds.installment.length - 1]
-                      ?.interest_rate
-                  )
-                : 0) * 100
-            ).toFixed(2)}
-            %
-          </p>
-
-          <button
-            className="mt-6 w-full rounded-full bg-green-500 px-6 py-3 text-white"
-            onClick={handleToReceive}
-          >
-            Confirm
-          </button>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+      <ConfirmDialog
+        isOpen={isOpen}
+        onClose={closeDialog}
+        message={message}
+        status={status as 'success' | 'error'}
+      />
+    </>
   );
 };
 
