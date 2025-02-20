@@ -7,6 +7,8 @@ import Image from '@/components/ui/image';
 import { useState, Fragment, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dialog, Transition } from '@/components/ui/dialog';
+import { getStatusLabel, getShowAddress } from '@/utils/getStatusLabel';
+import dayjs from "dayjs";
 
 const LoanDetails: NextPageWithLayout = () => {
   const router = useRouter();
@@ -19,7 +21,9 @@ const LoanDetails: NextPageWithLayout = () => {
 
   const handleConfrim = () => {
     closeModal();
-    router.push('/supplement');
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    router.push(`/supplement?id=${id}`);
   };
 
   function openModal() {
@@ -28,34 +32,30 @@ const LoanDetails: NextPageWithLayout = () => {
   const borrowAmountFieldList = [
     {
       label: 'Penriod',
-      value: '3',
-    },
-    {
-      label: 'remaining period',
-      value: '1',
+      value: originalData.stages,
     },
     {
       label: 'mortgaged quantity',
-      value: '1125aleo',
+      value: originalData.deposit_amount + 'aleo',
     },
     {
       label: 'interest rate type',
-      value: 'fixed interest rate',
+      value: 'fixed rate',
     },
     {
       label: 'interest rate',
-      value: '0.5%',
+      value: parseFloat(originalData.rate) * 100 + '%',
     },
   ];
 
   const [receiveLoansFieldList, setReceoveLoansFieldList] = useState([
     {
-      label: 'Current period repayment due',
-      value: '1.25',
+      label: 'Principal to be repaid',
+      value: '',
     },
     {
       label: 'Repayment date',
-      value: 'Before 2025/01/01',
+      value: '',
     },
     {
       label: 'Repayment method',
@@ -63,27 +63,26 @@ const LoanDetails: NextPageWithLayout = () => {
     },
     {
       label: 'Loan address',
-      value: 'al01489d****ads49',
+      value: '',
     },
     {
       label: 'Receiving address',
-      value: '0x5d6****a4dw68',
+      value: '',
     },
     {
       label: 'hash',
-      value: '0x5d6****a4dw68',
+      value: '',
     },
   ]);
 
   const handlReturn = () => {
-    // return back to previous page
-    const id = router.query.id;
-    localStorage.removeItem(`myLoan-${id}`);
+    // localStorage.removeItem(`myLoan-${id}`);
     router.back();
   };
 
   useEffect(() => {
-    const id = router.query.id;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
     const item = localStorage.getItem(`myLoan-${id}`);
     const originItem = item ? JSON.parse(item as string) : null;
     setOriginalData(originItem);
@@ -91,7 +90,11 @@ const LoanDetails: NextPageWithLayout = () => {
     const deepReceiveLoansFieldList = JSON.parse(
       JSON.stringify(receiveLoansFieldList)
     );
-    deepReceiveLoansFieldList[5].value = originItem.release_hash;
+    deepReceiveLoansFieldList[0].value = originItem.release_amount;
+    deepReceiveLoansFieldList[1].value = "Before " + dayjs.unix(originItem.start_at+originItem.stages*originItem.day_per_stage*24*3600).format("YYYY-MM-DD");
+    deepReceiveLoansFieldList[3].value = getShowAddress(originItem.aleo_address);
+    deepReceiveLoansFieldList[4].value = getShowAddress(originItem.bsc_address);
+    deepReceiveLoansFieldList[5].value = getShowAddress(originItem.release_hash);
     setReceoveLoansFieldList(deepReceiveLoansFieldList);
     return () => {};
   }, []);
@@ -109,7 +112,7 @@ const LoanDetails: NextPageWithLayout = () => {
 
         <div className="mb-2 flex items-center justify-between">
           <p className="text-lg text-[#5C6166]">Amount</p>
-          <p className="text-lg text-[#1EBE70]">Reviewing</p>
+          <p className="text-lg text-[#1EBE70]">{getStatusLabel(originalData.status)}</p>
         </div>
         <div className="mb-4 flex items-center justify-between">
           <p className="flex items-start font-bold text-[#18191A]">
@@ -162,10 +165,10 @@ const LoanDetails: NextPageWithLayout = () => {
         <div className="mt-4 rounded-2xl border border-[#E8EAEB] bg-white px-4 py-2 shadow-[0px_20px_50px_0px_rgba(7,17,53,0.05)]">
           <div className="mt-2 flex items-center justify-between">
             <div className="mr-8 shrink-0 text-base tracking-tighter text-[#8A9199]">
-              Health value of mortgaged assets
+              Health value of mortgaged
             </div>
             <div className="text-base tracking-tighter text-[#18191A]">
-              {(originalData.health * 100).toFixed(0)}%
+              {(originalData.health * 100).toFixed(2)}%
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between">

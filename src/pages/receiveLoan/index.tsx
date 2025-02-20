@@ -34,7 +34,7 @@ const ReceiveLoanStepOne = (props: any) => {
     const addressValid = handleAddressBlur();
     if (!addressValid) return;
     const emailValid = handleEmailBlur();
-    if (!emailValid) return;
+    if (!emailValid) return openDialog('Please check your email address');
     onStepChange({ step: 2, info });
   };
 
@@ -55,6 +55,9 @@ const ReceiveLoanStepOne = (props: any) => {
   const handleEmailBlur = () => {
     const email = info.email;
     // first valid address regex ^0x[0-9a-fA-F]{40}$
+    if (email.length === 0) {
+      return true;
+    }
     if (email) {
       const reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
       const validEmail = reg.test(email);
@@ -374,19 +377,19 @@ const ReceiveLoanStepThree = (props: any) => {
   const [borrowAmountFieldList, setBorrowAmountFieldList] = useState([
     {
       label: 'Loan address',
-      value: '0x84**55dd',
+      value: '',
     },
     {
       label: 'Loan type',
-      value: 'aleo',
+      value: '',
     },
     {
       label: 'collateral',
-      value: '1125usdt',
+      value: '',
     },
     {
       label: 'collateral value',
-      value: '1125usdt',
+      value: '',
     },
   ]);
 

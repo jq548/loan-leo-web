@@ -86,7 +86,9 @@ const Loan: NextPageWithLayout = () => {
     if (!publicKey) {
       return openDialog('Please connect your wallet first!', 'error');
     }
-    setPledgeAmount(aleoBalance.toFixed(2));
+    const max = Math.floor(aleoBalance * 100) / 100;
+    setPledgeAmount(max.toString());
+    getLpQuantityApi(max.toString());
   };
 
   const handlePledgeAmountChange = (value: string) => {
@@ -206,7 +208,7 @@ const Loan: NextPageWithLayout = () => {
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-xl text-[#B8C2CC]"
               />
               <label className="absolute right-4 top-4 block bg-white text-xs text-black">
-                AIDI
+                DINAR
               </label>
             </div>
 

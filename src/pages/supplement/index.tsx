@@ -15,6 +15,12 @@ import {
   PolarComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import {getAleoBalance, saveMortgageInfo} from "@/apis";
+import {useWallet} from "@demox-labs/aleo-wallet-adapter-react";
+import {useDialog} from "@/components/confirm-dialog/confirmDialog";
+import {Transaction, WalletAdapterNetwork} from "@demox-labs/aleo-wallet-adapter-base";
+import {LeoWalletAdapter} from "@demox-labs/aleo-wallet-adapter-leo";
+import {useLoading} from "@/components/loading/loading";
 
 echarts.use([
   TitleComponent,
@@ -26,25 +32,117 @@ echarts.use([
 ]);
 
 const ReceiveLoanPage: NextPageWithLayout = () => {
+  const { isOpen, message, status, openDialog, closeDialog } = useDialog();
   const router = useRouter();
   const [pledgeAmount, setPledgeAmount] = useState('0.00');
   const circleBarChartRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const [originalData, setOriginalData] = useState<any>({});
+  const [aleoBalance, setAleoBalance] = useState(0);
+  const { isLoading, openLoading, closeLoading } = useLoading();
+  const { wallet, publicKey, requestRecords } = useWallet();
 
   const handlReturn = () => {
     // return back to previous page
     router.back();
   };
 
+  const getBalance = async () => {
+    if (!publicKey) {
+      setAleoBalance(0);
+      return;
+    }
+    try {
+      const result: any = await getAleoBalance(publicKey);
+      let balanceString = result.data as string;
+      balanceString = balanceString.substring(0, balanceString.length - 3);
+      const balance = parseFloat(balanceString) / 1000000;
+      setAleoBalance(balance);
+    } catch (e) {
+      console.log('get aleo balance error: ', e);
+    }
+  };
+
+  const handleMaxClick = () => {
+    if (!publicKey) {
+      return openDialog('Please connect your wallet first!', 'error');
+    }
+    const max = Math.floor(aleoBalance * 100) / 100;
+    setPledgeAmount(max.toString());
+  };
+
+  const handleConfirm = async (event: any) => {
+    event.preventDefault();
+    if (!publicKey) {
+      return openDialog('Please connect your wallet first!', 'error');
+    }
+    if (publicKey !== originalData.aleo_address) {
+      return openDialog('You can only use the mortgage account to recharge', 'error');
+    }
+    openLoading();
+    try {
+      const res = await saveMortgageInfo({
+        aleo_address: publicKey,
+        aleo_amount: parseFloat(pledgeAmount),
+        loan_id: originalData.id,
+        type: 1,
+        loan_type: 1,
+      });
+
+      if (res?.success) {
+        const amount = parseFloat(pledgeAmount) * 1000000;
+        const amounts = amount.toString() + 'u64';
+
+        const inputs = [process.env.NEXT_PUBLIC_HOLDER, amounts];
+        const aleoTransaction = Transaction.createTransaction(
+            publicKey,
+            process.env.NEXT_PUBLIC_CHAIN as WalletAdapterNetwork,
+            'credits.aleo',
+            'transfer_public',
+            inputs,
+            100000,
+            false
+        );
+
+        const txId =
+            (await (wallet?.adapter as LeoWalletAdapter).requestTransaction(
+                aleoTransaction
+            )) || '';
+        // if (event.target?.elements[0]?.value) {
+        //   event.target.elements[0].value = '';
+        // }
+        console.log(txId);
+        openDialog('Recharge successful');
+      } else {
+        openDialog(res?.message, 'failed');
+      }
+      closeLoading();
+    } catch (error: any) {
+      closeLoading();
+      return openDialog(error.message, 'error');
+    }
+  }
+
   useEffect(() => {
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const item = localStorage.getItem(`myLoan-${id}`);
+    const originItem = item ? JSON.parse(item as string) : null;
+    setOriginalData(originItem)
+
+    if (!originItem) {
+      return ;
+    }
+
     if (!circleBarChartRef.current) return;
-
     const circleBarChartInstance = echarts.init(circleBarChartRef.current);
+    let option = circleBarConfig();
+    option.title[0].text = (originItem.health * 100).toFixed(2) + "%";
 
-    circleBarChartInstance.setOption(circleBarConfig());
-
+    option.series[0].data = [originItem.health * 100];
+    circleBarChartInstance.setOption(option);
     window.addEventListener('resize', () => circleBarChartInstance.resize());
-
     return () => {
       window.removeEventListener('resize', () =>
         circleBarChartInstance.resize()
@@ -52,6 +150,10 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
       circleBarChartInstance.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    getBalance();
+  }, [publicKey]);
 
   return (
     <>
@@ -70,7 +172,7 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
               Asset value at the time of mortgage
             </div>
             <div className="flex items-end text-[#18191A]">
-              <span className="text-2xl font-bold">1888</span>
+              <span className="text-2xl font-bold">{originalData.value_when_deposit}</span>
               <span className="text-xl font-bold">USDT</span>
             </div>
           </div>
@@ -80,7 +182,7 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
               Current mortgaged asset value
             </div>
             <div className="flex items-end text-[#18191A]">
-              <span className="text-2xl font-bold">1700</span>
+              <span className="text-2xl font-bold">{originalData.value_current}</span>
               <span className="text-xl font-bold">USDT</span>
             </div>
           </div>
@@ -95,7 +197,7 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
               <div className="text-sm tracking-tighter text-[#737980]">
                 Mortgaged asset health value
               </div>
-              <div className="mt-3 font-bold text-[#18191A]">80%</div>
+              <div className="mt-3 font-bold text-[#18191A]">{(originalData.health * 100).toFixed(2)}%</div>
             </div>
           </div>
 
@@ -129,22 +231,21 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
                     className="w-full border-0 bg-transparent text-2xl font-bold text-[#18191A]"
                   />
                 </div>
-                <button className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white">
+                <button className="ml-auto rounded-lg bg-[#1EBE70] px-6 py-3 text-white" onClick={handleMaxClick}>
                   MAX
                 </button>
               </div>
 
               <div className="mt-2 text-sm tracking-tighter text-[#8A9199]">
-                Balance：5263.36
+                Balance：{aleoBalance}
               </div>
 
               <p className="mt-8 text-sm tracking-tighter text-[#8A9199]">
-                The mortgaged asset health value needs to be recharged to
-                restore it to the normal range.:
+                To restore the health value of the mortgaged assets to 100%, you need to top up:
               </p>
 
               <div className="mt-6 flex items-end text-[#18191A]">
-                <span className="text-2xl font-bold">532.35</span>
+                <span className="text-2xl font-bold">{originalData.min_recharge}</span>
                 <span className="text-xl font-bold">ALEO</span>
               </div>
             </>
@@ -160,13 +261,13 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
         ) : (
           <button
             className="mt-6 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
-            onClick={() => setOpen(true)}
+            onClick={handleConfirm}
           >
             Confrim
           </button>
         )}
       </main>
-      {/* 
+      {/*
       <Transition appear show={open} as={Fragment}>
         <Dialog
           as="div"

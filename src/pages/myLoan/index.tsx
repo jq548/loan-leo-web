@@ -135,7 +135,7 @@ const MyLoan: NextPageWithLayout = () => {
                     <div className="mb-3 flex items-center justify-between">
                       <p className="mr-6 text-sm text-[#5C6166]">Contract</p>
                       <p className="text-overflow-ellipsis overflow-hidden truncate text-sm text-[#18191A]">
-                        {item.aleo_address}
+                        {item.contract}
                       </p>
                     </div>
                     <div className="mb-3 flex items-center justify-between">
