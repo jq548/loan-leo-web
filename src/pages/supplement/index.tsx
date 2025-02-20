@@ -86,7 +86,6 @@ const ReceiveLoanPage: NextPageWithLayout = () => {
         aleo_amount: parseFloat(pledgeAmount),
         loan_id: originalData.id,
         type: 1,
-        loan_type: 1,
       });
 
       if (res?.success) {
