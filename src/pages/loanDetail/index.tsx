@@ -175,7 +175,7 @@ const LoanDetails: NextPageWithLayout = () => {
             <div className="mr-8 shrink-0 text-base tracking-tighter text-[#8A9199]">
               overdue
             </div>
-            <div className="text-base tracking-tighter text-[#18191A]">1</div>
+            <div className="text-base tracking-tighter text-[#18191A]">0</div>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ const LoanDetails: NextPageWithLayout = () => {
           className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white"
           onClick={openModal}
         >
-          Current repayment
+          Cover positions
         </button>
 
         {/* <button className="mt-4 w-full rounded-full bg-[#1EBE70] px-6 py-3 font-bold text-white">
