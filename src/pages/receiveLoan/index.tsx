@@ -201,7 +201,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The collateral you are providing for the loan',
       },
-      value: '1611aleo',
+      value: '',
     },
     {
       label: 'Collateral value',
@@ -209,7 +209,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The value of the collateral in USD',
       },
-      value: '1811.25USDT',
+      value: '',
     },
     {
       label: 'Collateral rate',
@@ -217,7 +217,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The collateral rate as a multiplier',
       },
-      value: '0.700x',
+      value: '',
     },
     {
       label: 'Borrowing amount',
@@ -225,7 +225,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The amount you wish to borrow',
       },
-      value: '1267.75USDT',
+      value: '',
     },
     {
       label: 'Repayment method',
@@ -241,7 +241,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The number of installments',
       },
-      value: '1week',
+      value: '',
     },
     {
       label: 'Weekly interest',
@@ -249,7 +249,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: true,
         content: 'The weekly interest rate',
       },
-      value: '0.5%',
+      value: '',
     },
     {
       label: 'Interest rate type',
@@ -265,7 +265,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: false,
         content: 'The interest per installment',
       },
-      value: '5.25USDT',
+      value: '',
     },
     {
       label: 'Receiving address',
@@ -273,7 +273,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: false,
         content: 'The receiving address for the loan',
       },
-      value: '0x45s****6a8454s',
+      value: '',
     },
     {
       label: 'Email',
@@ -281,7 +281,7 @@ const ReceiveLoanStepTwo = (props: any) => {
         show: false,
         content: 'Your email address',
       },
-      value: '31**365@gmail.com',
+      value: '',
     },
   ]);
   const { onStepChange, obtainFunds, stepOneInfo } = props;
@@ -296,10 +296,10 @@ const ReceiveLoanStepTwo = (props: any) => {
       deepFieldList[6].value = stepOneInfo.installment + 'week';
       deepFieldList[7].value =
         (
-          obtainFunds.installment[stepOneInfo.installment].interest_rate * 100
+          obtainFunds.installment[stepOneInfo.installment-1].interest_rate * 100
         ).toFixed(2) + '%';
       deepFieldList[9].value =
-        obtainFunds.installment[stepOneInfo.installment].interest_installment +
+        obtainFunds.installment[stepOneInfo.installment-1].interest_installment +
         'USDT';
       deepFieldList[10].value = stepOneInfo.address;
       deepFieldList[11].value = stepOneInfo.email;
