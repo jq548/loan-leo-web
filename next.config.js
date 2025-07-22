@@ -21,7 +21,7 @@ module.exports = withPWA({
     },
   }),
   images: {
-    domains: ['wings.tcds.ltd'],
+    domains: ['loan.mnemo.cloud'],
   },
   webpack5: true,
   webpack: (config, options) => {
